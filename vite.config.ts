@@ -4,16 +4,8 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  build: {
+  build: {x
     target: 'esnext',
-    outDir: 'dist',
-    rollupOptions: {
-      input: {
-        main: './index.html'
-      }
-    }
-  },
-  server: {
-    port: 3000
+    outDir: 'dist'
   }
 });
