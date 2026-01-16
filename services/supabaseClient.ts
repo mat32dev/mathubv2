@@ -3,12 +3,8 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const getEnv = (key: string) => {
   try {
-    // Intenta obtener de process (Vercel/Node) o import.meta (Vite)
     // @ts-ignore
-    return (typeof process !== 'undefined' && process.env && process.env[key]) || 
-           // @ts-ignore
-           (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) || 
-           '';
+    return (window.process?.env?.[key]) || (process.env?.[key]) || '';
   } catch (e) {
     return '';
   }
