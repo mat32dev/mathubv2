@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { 
   MessageCircle, Heart, X, Loader2, Users, 
@@ -115,7 +114,7 @@ export const Community: React.FC = () => {
                 className="bg-mat-500 hover:bg-mat-400 text-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center gap-5 transition-all shadow-xl group border-b-4 border-mat-700 active:translate-y-1 active:border-b-0"
              >
                 <div className="text-center">
-                   <p className="text-white font-black text-2xl md:text-3xl leading-none mb-1">Sync Crate</p>
+                   <p className="text-white font-black text-2xl md:text-3xl leading-none mb-1">Crate Sync</p>
                    <p className="text-[10px] text-mat-900 font-black uppercase tracking-widest">Protocolo de Intercambio</p>
                 </div>
              </button>
@@ -253,26 +252,26 @@ export const Community: React.FC = () => {
               <div className="mb-8 md:mb-10 text-center">
                  <div className="inline-flex items-center gap-2 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-4"><Database className="w-4 h-4" /> CRATE SYNC</div>
                  <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-2 font-exo">Crate-to-Crate</h2>
-                 <p className="text-gray-400 text-sm font-light italic leading-relaxed">Pega tu lista de vinilos. El sistema los categorizará para la comunidad.</p>
+                 <p className="text-gray-400 text-sm font-light italic leading-relaxed">Pega tu lista de vinilos para que otros coleccionistas puedan verla.</p>
               </div>
 
               {syncStatus === 'parsing' ? (
                 <div className="py-16 md:py-20 flex flex-col items-center">
                    <Loader2 className="w-16 h-16 text-mat-500 animate-spin mb-6" />
-                   <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Procesando...</p>
+                   <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Sincronizando caja...</p>
                 </div>
               ) : syncStatus === 'success' ? (
                 <div className="py-16 md:py-20 text-center animate-fade-in">
                    <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-6" />
                    <h4 className="text-xl md:text-2xl font-black text-white uppercase mb-2">Caja Sincronizada</h4>
-                   <p className="text-gray-500 text-[10px] font-black uppercase">Tus discos ya son visibles en el Trade Hub.</p>
+                   <p className="text-gray-500 text-[10px] font-black uppercase">Tus discos ya son visibles en el Hub.</p>
                 </div>
               ) : (
                 <div className="space-y-6">
                    <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Alias del Coleccionista" className="w-full bg-mat-800 border-2 border-mat-700 p-4 md:p-5 text-white outline-none uppercase text-xs font-black rounded-xl shadow-inner focus:border-mat-500 transition-all" />
                    <textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="Donna Summer, I Feel Love, VG+, 25€..." className="w-full bg-mat-800 border-2 border-mat-700 p-4 md:p-6 h-32 md:h-40 text-white outline-none uppercase text-xs font-black rounded-2xl resize-none leading-relaxed shadow-inner focus:border-mat-500 transition-all" />
                    <button onClick={handleSyncProtocol} disabled={!csvInput.trim() || !ownerName.trim()} className="w-full py-5 md:py-6 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase tracking-[0.4em] text-xs shadow-xl clip-path-slant flex items-center justify-center gap-4 group">
-                      <Zap className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" /> Iniciar Sincronización
+                      <Zap className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" /> Iniciar Protocolo
                    </button>
                 </div>
               )}
