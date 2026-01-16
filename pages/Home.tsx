@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { ArrowRight, Disc, Music2, Zap, Users, Star, Clock, Heart, TrendingUp } from 'lucide-react';
+import { ArrowRight, Disc, Music2, Zap, Users, Star, Clock, Heart, TrendingUp, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EventCard } from '../components/EventCard';
 import { SEO } from '../components/SEO';
@@ -31,14 +31,14 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 overflow-x-hidden">
       <SEO titleKey="seo.home.title" descriptionKey="seo.home.description" />
       
-      {/* Hero Section - Optimized with fetchpriority for SEO/Speed */}
+      {/* Hero Section - Optimized with fetchPriority for SEO/Speed */}
       <section className="relative min-h-[95vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
             src="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?q=80&w=2000" 
             className="w-full h-full object-cover opacity-50 scale-105"
             alt="Interior del bar Mat32 Valencia"
-            fetchpriority="high"
+            fetchPriority="high"
             loading="eager"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-mat-900/70 via-mat-900/40 to-mat-900"></div>
@@ -71,7 +71,7 @@ export const Home: React.FC = () => {
         </div>
       </section>
 
-      {/* Community Status Bar */}
+      {/* Community Status Bar - Sticky & Social */}
       <section className="bg-mat-800/80 backdrop-blur-md border-y border-mat-700/50 sticky top-20 z-30 shadow-2xl">
         <div className="container mx-auto px-6 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
