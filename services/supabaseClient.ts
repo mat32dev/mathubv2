@@ -1,18 +1,24 @@
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-// Variables obtenidas del entorno (Vercel/Vite)
-const supabaseUrl = process.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || '';
+const getEnv = (key: string) => {
+  try {
+    // Intenta obtener de process (Vercel/Node) o import.meta (Vite)
+    // @ts-ignore
+    return (typeof process !== 'undefined' && process.env && process.env[key]) || 
+           // @ts-ignore
+           (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env[key]) || 
+           '';
+  } catch (e) {
+    return '';
+  }
+};
 
-/**
- * Flag para verificar si la infraestructura de base de datos está lista.
- */
+const supabaseUrl = getEnv('VITE_SUPABASE_URL');
+const supabaseAnonKey = getEnv('VITE_SUPABASE_ANON_KEY');
+
 export const isSupabaseConfigured = supabaseUrl !== '' && supabaseAnonKey !== '';
 
-/**
- * Cliente de Supabase. Solo se inicializa si hay configuración.
- */
 export const supabase = isSupabaseConfigured 
   ? createClient(supabaseUrl, supabaseAnonKey) 
   : null;
