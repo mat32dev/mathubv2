@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
   <head>
@@ -5,24 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mat32 | Alquiler de Local para Eventos y Discos Bar Hi-Fi Valencia</title>
     
-    <!-- SEO & Metadata Principal (Enfoque Eventos/Alquiler) -->
-    <meta name="description" content="Mat32 Valencia: Alquiler de local exclusivo para eventos corporativos y privados en Ruzafa. Sonido Hi-Fi Altec/Klipsch, coctelería de autor y agenda cultural." />
-    <meta name="keywords" content="alquiler local eventos valencia, sala eventos ruzafa, local eventos privados valencia, sonido hi-fi valencia, discos bar ruzafa, mat32 eventos" />
-    <meta name="author" content="Mat32" />
+    <!-- SEO & Metadata Estratégico -->
+    <meta name="description" content="Mat32 Valencia: Alquiler de local exclusivo para eventos privados y corporativos en Ruzafa. Sonido Hi-Fi Altec/Klipsch, coctelería y cultura de vinilos." />
+    <meta name="keywords" content="alquiler local eventos valencia, sala eventos ruzafa, local eventos privados valencia, sonido hi-fi valencia, discos bar ruzafa, mat32 eventos, alquiler sala fiestas valencia" />
+    <meta name="author" content="Mat32 Valencia" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://mat32.com/" />
     
     <!-- Open Graph / Social -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Mat32 | Espacio para Eventos y Sonido de Alta Fidelidad" />
-    <meta property="og:description" content="Reserva nuestro espacio en Ruzafa para eventos exclusivos. Sonido analógico y atmósfera premium." />
+    <meta property="og:title" content="Mat32 | Alquiler de Local y Eventos Premium en Ruzafa" />
+    <meta property="og:description" content="Reserva nuestro espacio Hi-Fi para tus eventos privados. Sonido analógico y atmósfera exclusiva en Valencia." />
     <meta property="og:image" content="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?q=80&w=1200" />
 
-    <!-- Performance -->
+    <!-- Preconnect & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://esm.sh">
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
 
+    <!-- CSS & Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
@@ -45,7 +48,6 @@
         }
       }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     
     <style>
       :root { color-scheme: dark; }
@@ -58,10 +60,18 @@
       .clip-path-slant { clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); }
     </style>
 
+    <!-- Global Mocks for Browser Modules -->
     <script>
-      window.process = { env: { NODE_ENV: 'production' } };
+      window.process = { 
+        env: { 
+          NODE_ENV: 'production',
+          // La API_KEY será inyectada por el entorno, pero definimos el objeto para evitar ReferenceError
+          API_KEY: '' 
+        } 
+      };
     </script>
 
+    <!-- Importmap Limpio y Estricto (Crucial para evitar Pantalla Negra) -->
     <script type="importmap">
 {
   "imports": {
@@ -81,6 +91,8 @@
   </head>
   <body>
     <div id="root"></div>
+    <!-- Carga del módulo principal -->
     <script type="module" src="./index.tsx"></script>
   </body>
 </html>
+
