@@ -1,88 +1,16 @@
 
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mat32 | Discos Bar & Community Hub Valencia</title>
-    
-    <!-- SEO & Metadata -->
-    <meta name="description" content="Mat32: Santuario Hi-Fi y comunidad de vinilos en Valencia. Sonido analógico Altec & Klipsch en Ruzafa. Eventos, tienda y cultura musical." />
-    <meta name="keywords" content="discos bar valencia, hi-fi valencia, tienda vinilos ruzafa, eventos valencia, sonido analogico, mat32, ruzafa music" />
-    <meta name="author" content="Mat32 Valencia" />
-    <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://mat32.com/" />
-    
-    <!-- Open Graph / Social -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Mat32 | Discos Bar & Community Hub Valencia" />
-    <meta property="og:description" content="El epicentro de la cultura musical en Valencia. Sonido de alta fidelidad y comunidad de coleccionistas." />
-    <meta property="og:image" content="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?q=80&w=1200" />
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from './App';
 
-    <!-- Performance: Preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://esm.sh">
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              mat: { 
-                900: '#1c1917', 
-                800: '#292524', 
-                500: '#ea580c', 
-                400: '#f97316',
-                cream: '#f5f5f4' 
-              }
-            },
-            fontFamily: { 
-              exo: ['"Exo 2"', 'sans-serif'],
-              sans: ['Inter', 'sans-serif']
-            }
-          }
-        }
-      }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-      :root { color-scheme: dark; }
-      body { background-color: #1c1917; color: #f5f5f4; font-family: 'Inter', sans-serif; margin: 0; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-      .text-glow { text-shadow: 0 0 20px rgba(234, 88, 12, 0.4); }
-      .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      .animate-spin-slow { animation: spin 8s linear infinite; }
-      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      .clip-path-slant { clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); }
-    </style>
-
-    <script>
-      // Shim de proceso básico
-      window.process = { env: { NODE_ENV: 'production' } };
-    </script>
-
-    <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@19.0.0",
-    "react-dom": "https://esm.sh/react-dom@19.0.0",
-    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
-    "react-router-dom": "https://esm.sh/react-router-dom@7.1.5?external=react,react-dom",
-    "lucide-react": "https://esm.sh/lucide-react@0.474.0?external=react,react-dom",
-    "@google/genai": "https://esm.sh/@google/genai@1.3.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "vite": "https://esm.sh/vite@^7.3.1",
-    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
-  }
+const rootElement = document.getElementById('root');
+if (!rootElement) {
+  throw new Error("No se pudo encontrar el elemento root para montar la app.");
 }
-</script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
-  </body>
-</html>
+
+const root = createRoot(rootElement);
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
