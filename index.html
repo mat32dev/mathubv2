@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mat32 | Discos Bar & Community Hub Valencia</title>
+    
+    <!-- SEO & Indexación -->
+    <meta name="description" content="Mat32: Santuario Hi-Fi y comunidad de vinilos en Valencia. Sonido analógico Altec & Klipsch en Ruzafa. Eventos, tienda y comunidad." />
+    <meta name="keywords" content="discos bar valencia, hi-fi valencia, tienda vinilos ruzafa, eventos valencia, sonido analogico, mat32" />
+    <link rel="canonical" href="https://mat32.com/" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Mat32 | El epicentro del vinilo en Valencia" />
+    <meta property="og:description" content="Santuario Hi-Fi y punto de encuentro para melómanos en el corazón de Ruzafa." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?q=80&w=1200" />
+    <meta property="og:type" content="website" />
+
+    <!-- Speed Optimization: Preconnect & DNS Prefetch -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://aistudiocdn.com">
+    <link rel="dns-prefetch" href="https://aistudiocdn.com">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              mat: { 
+                900: '#1c1917', 
+                800: '#292524', 
+                500: '#ea580c', 
+                400: '#f97316',
+                cream: '#f5f5f4' 
+              }
+            },
+            fontFamily: { 
+              exo: ['"Exo 2"', 'sans-serif'],
+              sans: ['Inter', 'sans-serif']
+            }
+          }
+        }
+      }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <style>
+      :root { color-scheme: dark; }
+      body { background-color: #1c1917; color: #f5f5f4; font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+      .text-glow { text-shadow: 0 0 20px rgba(234, 88, 12, 0.4); }
+      .clip-path-slant { clip-path: polygon(0 0, 100% 0, 95% 100%, 0% 100%); }
+      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+      .hide-scrollbar::-webkit-scrollbar { display: none; }
+      .animate-spin-slow { animation: spin 8s linear infinite; }
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "react": "https://aistudiocdn.com/react@^19.2.0",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0",
+          "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.6",
+          "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0"
+        }
+      }
+    </script>
+  <link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

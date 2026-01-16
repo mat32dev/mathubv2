@@ -1,0 +1,8 @@
+{
+  "name": "Mat32 | Discos Bar Valencia",
+  "description": "v1.4 - El epicentro de la cultura musical en Valencia. Sonido de alta fidelidad, comunidad de coleccionistas y asistente inteligente en tiempo real.",
+  "keywords": "alquiler local eventos valencia, Altec Valencia, Klipsch La Scala Valencia, disco bar valencia, sonido hi-fi valencia, discos valencia, comunidad musical valencia, sala eventos ruzafa",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
