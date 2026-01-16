@@ -5,19 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mat32 | Alquiler de Local para Eventos y Discos Bar Hi-Fi Valencia</title>
     
-    <!-- SEO ESTRATÉGICO -->
+    <!-- GOOGLE VERIFICATION: Sustituye content por el código que te de Search Console -->
+    <meta name="google-site-verification" content="REEMPLAZA_ESTO_CON_TU_CODIGO" />
+
+    <!-- ANALYTICS: Sustituye G-XXXXXXXXXX por tu ID -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    
+    <!-- SEO & PERFORMANCE -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://esm.sh">
+    
     <meta name="description" content="Mat32 Valencia: Alquiler de local para eventos privados y corporativos en Ruzafa. El mejor sonido Hi-Fi de Valencia con altavoces Altec y Klipsch." />
     <meta name="keywords" content="alquiler local eventos valencia, sala eventos ruzafa, local eventos privados valencia, sonido hi-fi valencia, discos bar ruzafa, mat32" />
-    <link rel="canonical" href="https://mat32.com/" />
+    <link rel="canonical" href="https://www.mat32.com/" />
     
     <!-- Open Graph -->
     <meta property="og:title" content="Mat32 | Espacio Exclusivo para Eventos en Valencia" />
-    <meta property="og:description" content="Reserva nuestro santuario de sonido en Ruzafa para tus eventos privados. Sonido analógico y coctelería premium." />
+    <meta property="og:description" content="Reserva nuestro santuario de sonido en Ruzafa para eventos privados. Sonido analógico y coctelería premium." />
     <meta property="og:image" content="https://images.unsplash.com/photo-1571266028243-3716f02d2d2e?q=80&w=1200" />
 
-    <!-- Fuentes y Estilos -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@700;900&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -38,16 +52,10 @@
       body { background-color: #1c1917; color: #f5f5f4; font-family: 'Inter', sans-serif; margin: 0; overflow-x: hidden; }
       .text-glow { text-shadow: 0 0 20px rgba(234, 88, 12, 0.4); }
       .clip-path-slant { clip-path: polygon(5% 0, 100% 0, 95% 100%, 0 100%); }
-      .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-      @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
-    <script>
-      // Mock de process para evitar errores de librerías de Node en el navegador
-      window.process = { env: { NODE_ENV: 'production', API_KEY: '' } };
-    </script>
+    <script>window.process = { env: { NODE_ENV: 'production', API_KEY: '' } };</script>
 
-    <!-- IMPORTMAP ÚNICO Y SIN CONFLICTOS (Arregla la pantalla negra) -->
     <script type="importmap">
 {
   "imports": {
@@ -68,13 +76,5 @@
   <body>
     <div id="root"></div>
     <script type="module" src="./index.tsx"></script>
-    <!-- Script de seguridad para detectar si React no carga -->
-    <script>
-      window.addEventListener('error', function(e) {
-        if (e.message.indexOf('importmap') !== -1 || e.message.indexOf('React') !== -1) {
-          document.getElementById('root').innerHTML = '<div style="padding:40px; color:white; font-family:sans-serif;"><h2>Error de Carga</h2><p>Hay un conflicto de versiones en el navegador. Por favor, limpia la caché y recarga.</p></div>';
-        }
-      });
-    </script>
   </body>
 </html>
