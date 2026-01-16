@@ -1,7 +1,8 @@
+
 {
-  "name": "Mat32 | Alquiler para Eventos y Discos Bar Hi-Fi Valencia",
-  "description": "v1.4.7 - Alquiler de local exclusivo para eventos privados en Valencia. Sonido de alta fidelidad Altec/Klipsch, agenda de eventos y tienda de vinilos en Ruzafa.",
-  "keywords": "alquiler local eventos valencia, sala eventos ruzafa, local eventos privados valencia, Altec Valencia, Klipsch La Scala, discos bar valencia, sonido hi-fi valencia",
+  "name": "Mat32 | Alquiler de Local para Eventos Valencia",
+  "description": "v1.4.8 - Especialistas en alquiler de local exclusivo para eventos privados en Valencia. Sonido Hi-Fi Altec/Klipsch, coctelería y eventos musicales en Ruzafa.",
+  "keywords": "alquiler local eventos valencia, sala eventos ruzafa, eventos privados valencia, sonido hi-fi, mat32, cocteleria valencia",
   "requestFramePermissions": [
     "microphone"
   ]
