@@ -1,30 +1,37 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Loader2, Menu, X, Disc, ShoppingBag, Globe } from 'lucide-react';
 
-// Componentes y Contexto
+// Componentes y Contexto (Carga crítica inmediata)
 import { CartDrawer } from './components/CartDrawer';
 import { CartProvider, useCart } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AIChat } from './components/AIChat';
 
-// Importaciones Estáticas de Páginas (Corrige error de resolución en Vercel)
-import { Home } from './pages/Home';
-import { Events } from './pages/Events';
-import { Community } from './pages/Community';
-import { OpenDecks } from './pages/OpenDecks';
-import { Contact } from './pages/Contact';
-import { PrivateEvents } from './pages/PrivateEvents';
-import { Records } from './pages/Records';
-import { Bar } from './pages/Bar';
-import { Checkout } from './pages/Checkout';
-import { Admin } from './pages/Admin';
-import { Legal } from './pages/Legal';
-import { EventDetail } from './pages/EventDetail';
-import { RecordDetail } from './pages/RecordDetail';
-import { PostDetail } from './pages/PostDetail';
+// Páginas con Lazy Loading para máxima velocidad de carga inicial
+const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
+const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
+const OpenDecks = lazy(() => import('./pages/OpenDecks').then(m => ({ default: m.OpenDecks })));
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const PrivateEvents = lazy(() => import('./pages/PrivateEvents').then(m => ({ default: m.PrivateEvents })));
+const Records = lazy(() => import('./pages/Records').then(m => ({ default: m.Records })));
+const Bar = lazy(() => import('./pages/Bar').then(m => ({ default: m.Bar })));
+const Checkout = lazy(() => import('./pages/Checkout').then(m => ({ default: m.Checkout })));
+const Admin = lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
+const Legal = lazy(() => import('./pages/Legal').then(m => ({ default: m.Legal })));
+const EventDetail = lazy(() => import('./pages/EventDetail').then(m => ({ default: m.EventDetail })));
+const RecordDetail = lazy(() => import('./pages/RecordDetail').then(m => ({ default: m.RecordDetail })));
+const PostDetail = lazy(() => import('./pages/PostDetail').then(m => ({ default: m.PostDetail })));
+
+const LoadingFallback = () => (
+  <div className="min-h-screen bg-mat-900 flex flex-col items-center justify-center">
+    <Loader2 className="w-10 h-10 text-mat-500 animate-spin mb-4" />
+    <p className="text-mat-500 font-black uppercase text-[10px] tracking-[0.3em]">Sincronizando señal...</p>
+  </div>
+);
 
 const Logo: React.FC = () => (
   <div className="flex items-center gap-2 group">
@@ -83,7 +90,7 @@ const HeaderContent: React.FC = () => {
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-mat-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full">{cartCount}</span>}
           </button>
-          <button className="text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button className="text-white" aria-label="Menu" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -91,7 +98,7 @@ const HeaderContent: React.FC = () => {
       
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-mat-900 pt-24 px-6 animate-fade-in">
-          <nav className="flex flex-col space-y-6">
+          <nav className="flex flex-col space-y-6 text-center">
             {navLinks.map((link) => (
               <Link key={link.name} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`text-2xl font-black uppercase tracking-widest ${isActive(link.path) ? 'text-mat-500' : 'text-white'}`}>{link.name}</Link>
             ))}
@@ -115,22 +122,24 @@ const App: React.FC = () => {
             <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans selection:bg-mat-500 selection:text-white">
               <HeaderContent />
               <main className="flex-grow">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/bar" element={<Bar />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/event/:id" element={<EventDetail />} />
-                  <Route path="/record/:id" element={<RecordDetail />} />
-                  <Route path="/post/:id" element={<PostDetail />} />
-                  <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
-                  <Route path="/records" element={<Records />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/open-decks" element={<OpenDecks />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/legal/:type" element={<Legal />} />
-                </Routes>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/bar" element={<Bar />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/event/:id" element={<EventDetail />} />
+                    <Route path="/record/:id" element={<RecordDetail />} />
+                    <Route path="/post/:id" element={<PostDetail />} />
+                    <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
+                    <Route path="/records" element={<Records />} />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/open-decks" element={<OpenDecks />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/legal/:type" element={<Legal />} />
+                  </Routes>
+                </Suspense>
               </main>
               <CartDrawer />
               <AIChat />
