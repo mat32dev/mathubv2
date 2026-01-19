@@ -9,11 +9,9 @@ import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
 import { useLanguage } from '../context/LanguageContext';
 import { Post, TradeMetadata } from '../types';
-import { CachedImage } from '../components/CachedImage';
 import { TagLink } from '../components/TagLink';
 import { Link } from 'react-router-dom';
 
-export const Community: React.FC = () => {
   const { t } = useLanguage();
   const [user, setUser] = useState<{alias: string, color: string} | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
