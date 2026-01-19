@@ -9,17 +9,11 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: false,
     emptyOutDir: true,
-    cssCodeSplit: true,
-    chunkSizeWarningLimit: 1000,
+    sourcemap: false,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['lucide-react'],
-          'genai-vendor': ['@google/genai']
-        }
+        manualChunks: undefined // Simplificado para evitar errores de resolución en Vercel
       }
     }
   }
