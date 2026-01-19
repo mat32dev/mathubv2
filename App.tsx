@@ -3,7 +3,14 @@ import React, { useMemo, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Loader2, Menu, X, Disc, ShoppingBag, Globe } from 'lucide-react';
 
-// Lazy loading con rutas explícitas para evitar ambigüedad en el build de producción
+// 1. Imports estáticos (SIEMPRE AL PRINCIPIO)
+import { CartDrawer } from './components/CartDrawer';
+import { CartProvider, useCart } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
+import { AIChat } from './components/AIChat';
+
+// 2. Lazy Loading (Después de los imports estáticos)
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
 const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
 const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
@@ -18,12 +25,6 @@ const Legal = lazy(() => import('./pages/Legal').then(m => ({ default: m.Legal }
 const EventDetail = lazy(() => import('./pages/EventDetail').then(m => ({ default: m.EventDetail })));
 const RecordDetail = lazy(() => import('./pages/RecordDetail').then(m => ({ default: m.RecordDetail })));
 const PostDetail = lazy(() => import('./pages/PostDetail').then(m => ({ default: m.PostDetail })));
-
-import { CartDrawer } from './components/CartDrawer';
-import { CartProvider, useCart } from './context/CartContext';
-import { FavoritesProvider } from './context/FavoritesContext';
-import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { AIChat } from './components/AIChat';
 
 const PageLoader = () => (
   <div className="min-h-screen bg-mat-900 flex flex-col items-center justify-center">
