@@ -1,26 +1,26 @@
 
 import React, { useMemo, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home } from './pages/Home.tsx';
-import { Events } from './pages/Events.tsx';
-import { Community } from './pages/Community.tsx';
-import { OpenDecks } from './pages/OpenDecks.tsx';
-import { Contact } from './pages/Contact.tsx';
-import { PrivateEvents } from './pages/PrivateEvents.tsx';
-import { Records } from './pages/Records.tsx';
-import { Bar } from './pages/Bar.tsx';
-import { Checkout } from './pages/Checkout.tsx';
-import { Admin } from './pages/Admin.tsx';
-import { Legal } from './pages/Legal.tsx';
-import { EventDetail } from './pages/EventDetail.tsx';
-import { RecordDetail } from './pages/RecordDetail.tsx';
-import { PostDetail } from './pages/PostDetail.tsx';
-import { CartDrawer } from './components/CartDrawer.tsx';
-import { CartProvider, useCart } from './context/CartContext.tsx';
-import { FavoritesProvider } from './context/FavoritesContext.tsx';
-import { LanguageProvider, useLanguage } from './context/LanguageContext.tsx';
+import { Home } from './pages/Home';
+import { Events } from './pages/Events';
+import { Community } from './pages/Community';
+import { OpenDecks } from './pages/OpenDecks';
+import { Contact } from './pages/Contact';
+import { PrivateEvents } from './pages/PrivateEvents';
+import { Records } from './pages/Records';
+import { Bar } from './pages/Bar';
+import { Checkout } from './pages/Checkout';
+import { Admin } from './pages/Admin';
+import { Legal } from './pages/Legal';
+import { EventDetail } from './pages/EventDetail';
+import { RecordDetail } from './pages/RecordDetail';
+import { PostDetail } from './pages/PostDetail';
+import { CartDrawer } from './components/CartDrawer';
+import { CartProvider, useCart } from './context/CartContext';
+import { FavoritesProvider } from './context/FavoritesContext';
+import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Menu, X, Disc, Instagram, ShoppingBag, Globe, Settings, Music, Zap } from 'lucide-react';
-import { AIChat } from './components/AIChat.tsx';
+import { AIChat } from './components/AIChat';
 
 const Logo: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`flex items-center gap-2 group ${className}`}>
