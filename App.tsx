@@ -1,32 +1,40 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Home } from './pages/Home';
-import { Events } from './pages/Events';
-import { Community } from './pages/Community';
-import { OpenDecks } from './pages/OpenDecks';
-import { Contact } from './pages/Contact';
-import { PrivateEvents } from './pages/PrivateEvents';
-import { Records } from './pages/Records';
-import { Bar } from './pages/Bar';
-import { Checkout } from './pages/Checkout';
-import { Admin } from './pages/Admin';
-import { Legal } from './pages/Legal';
-import { EventDetail } from './pages/EventDetail';
-import { RecordDetail } from './pages/RecordDetail';
-import { PostDetail } from './pages/PostDetail';
+import { Loader2, Menu, X, Disc, ShoppingBag, Globe, Settings, Music } from 'lucide-react';
+
+// Lazy loading pages for performance
+const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
+const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
+const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
+const OpenDecks = lazy(() => import('./pages/OpenDecks').then(m => ({ default: m.OpenDecks })));
+const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const PrivateEvents = lazy(() => import('./pages/PrivateEvents').then(m => ({ default: m.PrivateEvents })));
+const Records = lazy(() => import('./pages/Records').then(m => ({ default: m.Records })));
+const Bar = lazy(() => import('./pages/Bar').then(m => ({ default: m.Bar })));
+const Checkout = lazy(() => import('./pages/Checkout').then(m => ({ default: m.Checkout })));
+const Admin = lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
+const Legal = lazy(() => import('./pages/Legal').then(m => ({ default: m.Legal })));
+const EventDetail = lazy(() => import('./pages/EventDetail').then(m => ({ default: m.EventDetail })));
+const RecordDetail = lazy(() => import('./pages/RecordDetail').then(m => ({ default: m.RecordDetail })));
+const PostDetail = lazy(() => import('./pages/PostDetail').then(m => ({ default: m.PostDetail })));
+
 import { CartDrawer } from './components/CartDrawer';
 import { CartProvider, useCart } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
-import { Menu, X, Disc, Instagram, ShoppingBag, Globe, Settings, Music } from 'lucide-react';
 import { AIChat } from './components/AIChat';
+
+const PageLoader = () => (
+  <div className="min-h-screen bg-mat-900 flex flex-col items-center justify-center">
+    <Loader2 className="w-12 h-12 text-mat-500 animate-spin mb-4" />
+    <p className="text-mat-500 font-black uppercase text-[10px] tracking-[0.4em]">Loading Signal...</p>
+  </div>
+);
 
 const Logo: React.FC<{ className?: string }> = ({ className }) => (
   <div className={`flex items-center gap-2 group ${className}`}>
-    <div className="relative">
-      <Disc className="w-9 h-9 text-mat-500 animate-spin-slow group-hover:text-white transition-colors" />
-    </div>
+    <Disc className="w-9 h-9 text-mat-500 animate-spin-slow group-hover:text-white transition-colors" />
     <div className="flex flex-col">
       <div className="flex items-start leading-none">
         <span className="font-exo font-black text-2xl text-white tracking-tight">MAT</span>
@@ -58,133 +66,61 @@ const HeaderContent: React.FC = () => {
     <header className="sticky top-0 z-50 w-full bg-mat-900/95 backdrop-blur-xl border-b border-mat-800 h-20 md:h-24">
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
         <Link to="/"><Logo /></Link>
-        
-        <div className="hidden lg:flex items-center gap-4 xl:gap-8">
-          <nav className="flex items-center space-x-4 xl:space-x-6">
+        <div className="hidden lg:flex items-center gap-8">
+          <nav className="flex items-center space-x-6">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                className={`text-[9px] xl:text-[10px] font-black uppercase tracking-[0.25em] transition-all relative group ${isActive(link.path) ? 'text-mat-500' : 'text-gray-400 hover:text-white'}`}
-              >
+              <Link key={link.name} to={link.path} className={`text-[10px] font-black uppercase tracking-[0.25em] transition-all relative group ${isActive(link.path) ? 'text-mat-500' : 'text-gray-400 hover:text-white'}`}>
                 {link.name}
-                {isActive(link.path) && <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-mat-500 animate-fade-in"></span>}
+                {isActive(link.path) && <span className="absolute -bottom-2 left-0 w-full h-0.5 bg-mat-500"></span>}
               </Link>
             ))}
           </nav>
-
-          <div className="flex items-center gap-4 xl:gap-6 border-l border-mat-800 pl-6 xl:pl-8">
-            <Link to="/contact" className="px-6 py-3.5 bg-mat-500 text-white hover:bg-mat-400 font-black text-[11px] uppercase tracking-[0.25em] transition-all shadow-[0_10px_40px_rgba(234,88,12,0.3)] clip-path-slant flex items-center gap-2 group">
-              {t('nav.reserve_table')}
-            </Link>
-
-            <Link to="/alquiler-local-eventos-valencia" className="px-5 py-3.5 border-2 border-white text-white hover:bg-white hover:text-mat-900 font-black text-[11px] uppercase tracking-[0.25em] transition-all clip-path-slant flex items-center gap-2 group">
-              {t('nav.private_events').toUpperCase()}
-            </Link>
-
-            <div className="flex items-center gap-3 ml-2">
-              <button onClick={toggleLanguage} className="text-gray-500 hover:text-white transition-colors flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
-                {language === 'es' ? 'EN' : 'ES'}
-              </button>
-              <button onClick={toggleCart} className="relative p-3 bg-mat-800 rounded-xl text-gray-400 hover:text-mat-500 transition-colors border border-mat-700">
-                <ShoppingBag className="w-5 h-5" />
-                {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-mat-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-lg border-2 border-mat-800">{cartCount}</span>}
-              </button>
-            </div>
+          <div className="flex items-center gap-6 border-l border-mat-800 pl-8">
+            <Link to="/contact" className="px-6 py-3 bg-mat-500 text-white font-black text-[10px] uppercase tracking-widest clip-path-slant">{t('nav.reserve_table')}</Link>
+            <button onClick={toggleLanguage} className="text-gray-500 hover:text-white text-[10px] font-black uppercase tracking-widest">{language === 'es' ? 'EN' : 'ES'}</button>
+            <button onClick={toggleCart} className="relative p-3 bg-mat-800 rounded-xl text-gray-400">
+              <ShoppingBag className="w-5 h-5" />
+              {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-mat-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full">{cartCount}</span>}
+            </button>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 lg:hidden">
-           <Link to="/contact" className="px-4 py-2.5 bg-mat-500 text-white rounded-lg shadow-lg font-black text-[10px] uppercase tracking-widest">
-              {t('nav.reserve_table')}
-           </Link>
-           <button onClick={toggleCart} className="relative p-2.5 bg-mat-800 rounded-xl text-gray-400 hover:text-mat-500 transition-colors border border-mat-700">
+        <div className="lg:hidden flex items-center gap-4">
+          <button onClick={toggleCart} className="relative p-2.5 bg-mat-800 rounded-xl text-gray-400">
             <ShoppingBag className="w-5 h-5" />
-            {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-mat-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full shadow-lg border-2 border-mat-800">{cartCount}</span>}
+            {cartCount > 0 && <span className="absolute -top-2 -right-2 bg-mat-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full">{cartCount}</span>}
           </button>
-          <button className="text-white p-2.5" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+          <button className="text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
       </div>
-
+      
+      {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-mat-900 border-b border-mat-800 absolute w-full left-0 z-50 animate-fade-in shadow-2xl max-h-[85vh] overflow-y-auto">
-          <nav className="flex flex-col p-8 space-y-6">
+        <div className="lg:hidden fixed inset-0 z-40 bg-mat-900 pt-24 px-6 animate-fade-in">
+          <nav className="flex flex-col space-y-6">
             {navLinks.map((link) => (
-              <Link key={link.name} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`text-xs font-black uppercase tracking-[0.4em] ${isActive(link.path) ? 'text-mat-500' : 'text-gray-400'}`}>
+              <Link 
+                key={link.name} 
+                to={link.path} 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`text-2xl font-black uppercase tracking-widest ${isActive(link.path) ? 'text-mat-500' : 'text-white'}`}
+              >
                 {link.name}
               </Link>
             ))}
-            <div className="flex flex-col gap-4 border-t border-mat-800 pt-6">
-              <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-4 bg-mat-500 text-white text-center font-black uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-3">
-                {t('nav.reserve_table')}
-              </Link>
-              <Link to="/alquiler-local-eventos-valencia" onClick={() => setIsMobileMenuOpen(false)} className="px-6 py-4 border-2 border-mat-700 text-gray-500 text-center font-black uppercase tracking-[0.2em] rounded-xl flex items-center justify-center gap-3">
-                {t('nav.private_events').toUpperCase()}
-              </Link>
-              <button onClick={() => { toggleLanguage(); setIsMobileMenuOpen(false); }} className="text-[10px] font-black uppercase tracking-widest text-gray-600 flex items-center justify-center gap-2 mt-4">
-                <Globe size={14} /> SWITCH TO {language === 'es' ? 'ENGLISH' : 'ESPAÑOL'}
-              </button>
+            <div className="pt-8 border-t border-mat-800 space-y-4">
+               <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-center py-4 bg-mat-500 text-white font-black uppercase tracking-widest rounded-xl">
+                  {t('nav.reserve_table')}
+               </Link>
+               <button onClick={() => { toggleLanguage(); setIsMobileMenuOpen(false); }} className="w-full text-center py-4 border border-mat-700 text-gray-500 font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
+                  <Globe size={18} /> {language === 'es' ? 'ENGLISH' : 'ESPAÑOL'}
+               </button>
             </div>
           </nav>
         </div>
       )}
     </header>
-  );
-};
-
-const Footer: React.FC = () => {
-  const { t } = useLanguage();
-  return (
-    <footer className="bg-[#0c0a09] border-t border-mat-800 pt-32 pb-16">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-24">
-          <div className="md:col-span-5 space-y-10">
-            <Logo />
-            <p className="text-gray-500 text-lg leading-relaxed max-w-sm italic font-light">
-              "{t('footer.tagline')}"
-            </p>
-            <div className="flex gap-5">
-              <a href="https://instagram.com/mat32_vlc" target="_blank" rel="noopener noreferrer" className="p-4 bg-mat-900 border border-mat-800 rounded-2xl text-gray-500 hover:text-mat-500 transition-all shadow-xl"><Instagram className="w-6 h-6" /></a>
-              <a href="#" className="p-4 bg-mat-900 border border-mat-800 rounded-2xl text-gray-500 hover:text-mat-500 transition-all shadow-xl"><Music className="w-6 h-6" /></a>
-            </div>
-          </div>
-          
-          <div className="md:col-span-3 space-y-8">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.5em]">NAVIGATE</h4>
-            <nav className="flex flex-col space-y-4">
-              <Link to="/" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.home')}</Link>
-              <Link to="/bar" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.bar')}</Link>
-              <Link to="/events" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.events')}</Link>
-              <Link to="/community" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.community')}</Link>
-              <Link to="/records" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.records')}</Link>
-              <Link to="/open-decks" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.open_decks')}</Link>
-              <Link to="/contact" className="text-gray-500 hover:text-mat-500 transition-colors text-[10px] font-black uppercase tracking-widest">{t('nav.contact')}</Link>
-            </nav>
-          </div>
-
-          <div className="md:col-span-4 space-y-8">
-            <h4 className="text-[10px] font-black text-white uppercase tracking-[0.5em]">LOCATION</h4>
-            <div className="space-y-6">
-              <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest leading-relaxed">
-                Calle Matías Perelló, 32<br/>
-                46005 Valencia, Spain
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-12 border-t border-mat-800 flex flex-col md:flex-row justify-between items-center gap-10">
-          <p className="text-[10px] font-black text-gray-700 uppercase tracking-widest">© 2025 MAT32 | VALENCIA</p>
-          <div className="flex gap-10 items-center">
-            <Link to="/admin" className="text-gray-500 hover:text-mat-500 transition-all opacity-60 hover:opacity-100 flex items-center gap-2">
-              <Settings className="w-4 h-4" /> <span className="text-[10px] font-black uppercase tracking-widest">SISTEMA CORE</span>
-            </Link>
-          </div>
-        </div>
-      </div>
-    </footer>
   );
 };
 
@@ -197,24 +133,25 @@ const App: React.FC = () => {
             <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans selection:bg-mat-500 selection:text-white">
               <HeaderContent />
               <main className="flex-grow">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/bar" element={<Bar />} />
-                  <Route path="/events" element={<Events />} />
-                  <Route path="/event/:id" element={<EventDetail />} />
-                  <Route path="/record/:id" element={<RecordDetail />} />
-                  <Route path="/post/:id" element={<PostDetail />} />
-                  <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
-                  <Route path="/records" element={<Records />} />
-                  <Route path="/community" element={<Community />} />
-                  <Route path="/open-decks" element={<OpenDecks />} />
-                  <Route path="/contact" element={<Contact />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/admin" element={<Admin />} />
-                  <Route path="/legal/:type" element={<Legal />} />
-                </Routes>
+                <Suspense fallback={<PageLoader />}>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/bar" element={<Bar />} />
+                    <Route path="/events" element={<Events />} />
+                    <Route path="/event/:id" element={<EventDetail />} />
+                    <Route path="/record/:id" element={<RecordDetail />} />
+                    <Route path="/post/:id" element={<PostDetail />} />
+                    <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
+                    <Route path="/records" element={<Records />} />
+                    <Route path="/community" element={<Community />} />
+                    <Route path="/open-decks" element={<OpenDecks />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/admin" element={<Admin />} />
+                    <Route path="/legal/:type" element={<Legal />} />
+                  </Routes>
+                </Suspense>
               </main>
-              <Footer />
               <CartDrawer />
               <AIChat />
             </div>
