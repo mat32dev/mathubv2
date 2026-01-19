@@ -208,16 +208,16 @@ import { Link } from 'react-router-dom';
                             <div className="w-14 h-14 rounded-full flex items-center justify-center text-white font-black text-lg bg-mat-500">{post.author[0].toUpperCase()}</div>
                             <div>
                                <h4 className="text-white font-black uppercase text-base md:text-lg tracking-tighter">@{post.author}</h4>
-                               <span className="text-[10px] text-gray-600 font-bold uppercase">{post.timestamp}</span>
+                               <span className="text-[10px] text-gray-600 font-bold uppercase">{post.timestamp}</spanimg
                             </div>
                          </div>
                       </div>
                       <p className="text-gray-200 text-2xl md:text-3xl font-light italic leading-relaxed mb-10">{post.content}</p>
-                      {post.imageUrl && <div className="rounded-[3rem] overflow-hidden border-2 border-mat-700 mb-12"><CachedImage src={post.imageUrl} alt="Post image" className="w-full h-full object-cover" /></div>}
+                      {post.imageUrl && <div className="rounded-[3rem] overflow-hidden border-2 border-mat-700 mb-12"><img src={post.imageUrl} alt="Post image" className="w-full h-full object-cover" /></div>}
                       <div className="flex items-center gap-10 pt-10 border-t border-mat-700/50">
                          <button className="flex items-center gap-3 text-[11px] font-black uppercase text-mat-500"><Heart className="w-6 h-6" /> {post.likes}</button>
                          <button className="flex items-center gap-3 text-[11px] font-black uppercase text-gray-500"><MessageCircle className="w-6 h-6" /> {post.comments?.length || 0}</button>
-                      </div>
+                      </divimg
                    </div>
                 </article>
               ))}
