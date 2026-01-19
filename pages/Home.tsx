@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { ArrowRight, Music2, Zap, Headphones, Loader2, Star, Sparkles, History, Disc, Users, Heart, MessageCircle } from 'lucide-react';
+import { ArrowRight, Music2, Zap, Loader2, Sparkles, History, Disc, Users, Heart, MessageCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { EventCard } from '../components/EventCard';
 import { SEO } from '../components/SEO';
