@@ -1,6 +1,22 @@
 
-{
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    // Aseguramos que las extensiones se resuelvan en el orden correcto
+    extensions: ['.tsx', '.ts', '.jsx', '.js']
+  },
+  build: {
+    outDir: 'dist',
+    emptyOutDir: true,
+    sourcemap: false,
+    // Eliminamos configuraciones manuales de chunks que puedan confundir a Rollup
+    rollupOptions: {
+      output: {
+        manualChunks: undefined
+      }
+    }
+  }
+});
