@@ -1,283 +1,468 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { 
-  MessageCircle, Heart, X, Loader2, Users, 
-  RefreshCw, Disc, Database, CheckCircle2, Mail, Zap, Trophy, TrendingUp, Star
+  MessageCircle, Heart, X, Loader2, Camera, Send, 
+  AtSign, Share2, Disc, Handshake,
+  AlertCircle, Activity
 } from 'lucide-react';
 import { SEO } from '../components/SEO';
 import { dataService } from '../services/dataService';
-import { curateCommunityListings } from '../services/geminiService';
 import { useLanguage } from '../context/LanguageContext';
-import { Post, VinylRecord } from '../types';
+import { Post, TradeMetadata } from '../types';
+import { CachedImage } from '../components/CachedImage';
+import { TagLink } from '../components/TagLink';
 
 export const Community: React.FC = () => {
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'feed' | 'trade'>('feed');
+  const [user, setUser] = useState<{alias: string, color: string} | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
-  const [communityRecords, setCommunityRecords] = useState<VinylRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [newPostContent, setNewPostContent] = useState('');
-  const [showSyncModal, setShowSyncModal] = useState(false);
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'parsing' | 'success'>('idle');
-  const [csvInput, setCsvInput] = useState('');
-  const [ownerName, setOwnerName] = useState('');
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  
+  // Create Post States
+  const [isTradeMode, setIsTradeMode] = useState(false);
+  const [aliasInput, setAliasInput] = useState('');
+  const [content, setContent] = useState('');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [tradeDetails, setTradeDetails] = useState<TradeMetadata>({ artist: '', title: '', genre: 'House', condition: 'VG+' });
+  
+  // Trade Modal States
+  const [showTradeModal, setShowTradeModal] = useState<Post | null>(null);
+  const [tradeOffer, setTradeOffer] = useState('');
+  const [tradeStatus, setTradeStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
 
-  const loadCommunityData = useCallback(async () => {
-    setLoading(true);
+  const [activeCommentBox, setActiveCommentBox] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const loadData = async () => {
     try {
-      const [postData, recordData] = await Promise.all([
-        dataService.getCommunityPosts(),
-        dataService.getCommunityRecords()
-      ]);
-      setPosts(postData);
-      setCommunityRecords(recordData);
-    } catch (e) {
-      console.error("Community Hub Error:", e);
+      const allPosts = await dataService.getCommunityPosts();
+      setPosts(allPosts);
+      setUser(dataService.getUserProfile());
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    loadCommunityData();
-  }, [loadCommunityData]);
+    loadData();
+    window.addEventListener('mat32_data_changed', loadData);
+    return () => window.removeEventListener('mat32_data_changed', loadData);
+  }, []);
 
-  const handleCreatePost = async () => {
-    if (!newPostContent.trim()) return;
-    const success = await dataService.createPost({ content: newPostContent, author: 'Selector' });
-    if (success) {
-      setNewPostContent('');
-      loadCommunityData();
+  const handleInteraction = (action: () => void) => {
+    if (!user) {
+      setShowLoginModal(true);
+    } else {
+      action();
     }
   };
 
-  const handleSyncProtocol = async () => {
-    if (!csvInput.trim() || !ownerName.trim()) return;
-    setSyncStatus('parsing');
-    try {
-      const curatedList = await curateCommunityListings(csvInput);
-      if (curatedList && curatedList.length > 0) {
-        const markedList = curatedList.map((r: any) => ({ ...r, isTradeable: true }));
-        await dataService.addCommunityRecords(markedList, ownerName);
-        setSyncStatus('success');
-        setTimeout(() => {
-          setShowSyncModal(false);
-          setSyncStatus('idle');
-          setCsvInput('');
-          setOwnerName('');
-          loadCommunityData();
-        }, 2000);
-      }
-    } catch (e) {
-      setSyncStatus('idle');
-    }
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (aliasInput.trim().length < 3) return;
+    dataService.setUserProfile(aliasInput);
+    setAliasInput('');
+    setShowLoginModal(false);
+    loadData();
   };
+
+  const handlePostSubmit = async () => {
+    if (!content.trim() && !previewImage && !isTradeMode) return;
+    setLoading(true);
+    await dataService.createPost({
+      author: user!.alias,
+      avatar: user!.color,
+      content: content,
+      imageUrl: previewImage || undefined,
+      isTrade: isTradeMode,
+      tradeMetadata: isTradeMode ? tradeDetails : undefined
+    });
+    setContent('');
+    setPreviewImage(null);
+    setIsTradeMode(false);
+    setTradeDetails({ artist: '', title: '', genre: 'House', condition: 'VG+' });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setLoading(false);
+  };
+
+  const handleCommentSubmit = async (postId: string) => {
+    if (!commentText.trim()) return;
+    await dataService.addComment(postId, {
+      author: user!.alias,
+      content: commentText
+    });
+    setCommentText('');
+    setActiveCommentBox(null);
+    loadData();
+  };
+
+  const handleSendTradeProposal = async () => {
+    if (!tradeOffer.trim() || !showTradeModal) return;
+    setTradeStatus('sending');
+    await dataService.createInboxMessage({
+      type: 'trade_proposal',
+      sender: user!.alias,
+      email: `${user!.alias}@community.mat32.com`,
+      content: `Propuesta de intercambio para ${showTradeModal.tradeMetadata?.artist} - ${showTradeModal.tradeMetadata?.title}. Oferta: ${tradeOffer}`,
+      metadata: { postId: showTradeModal.id, offer: tradeOffer }
+    });
+    setTradeStatus('sent');
+    setTimeout(() => {
+      setShowTradeModal(null);
+      setTradeOffer('');
+      setTradeStatus('idle');
+    }, 2000);
+  };
+
+  const isMarketLive = true; // Simulado para el Live Marketplace status
 
   return (
-    <div className="min-h-screen bg-mat-900">
-      <SEO titleKey="nav.community" descriptionKey="seo.community.description" schemaType="CollectionPage" />
+    <div className="min-h-screen bg-mat-900 pb-20">
+      <SEO titleKey="nav.community" descriptionKey="seo.community.description" />
 
-      {/* Hero Hub */}
-      <div className="bg-mat-800 py-16 md:py-24 border-b border-mat-700 relative overflow-hidden">
-        <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row justify-between items-center gap-12">
-          <div className="animate-fade-in text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 bg-mat-500/10 text-mat-500 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-4 border border-mat-500/20">
-               <TrendingUp className="w-3 h-3" /> HUB SIGNAL
-            </div>
-            <h1 className="text-5xl md:text-9xl font-black uppercase tracking-tighter text-white leading-none font-exo text-glow">
-              THE<br/><span className="text-mat-500">HUB.</span>
-            </h1>
-            <p className="text-gray-400 text-lg md:text-xl mt-4 font-light italic leading-relaxed max-w-md">Conectando a los coleccionistas de vinilo de Valencia.</p>
-          </div>
+      {/* Hero Section Immersive */}
+      <div className="relative bg-mat-800 py-24 md:py-48 border-b border-mat-700 overflow-hidden text-center">
+        <div className="absolute inset-0 opacity-20 pointer-events-none">
+          <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(#ea580c_1px,transparent_1px)] [background-size:40px_40px]"></div>
+        </div>
+        <div className="container mx-auto px-6 relative z-10">
+           <div className="flex flex-col items-center gap-4 mb-10">
+              <div className="inline-flex items-center gap-3 px-6 py-2 bg-mat-900 border border-mat-500 text-mat-500 text-[10px] font-black uppercase tracking-[0.4em] rounded-full shadow-2xl animate-fade-in">
+                <Disc className="w-4 h-4" /> LOCAL MARKETPLACE
+              </div>
+              <div className="flex items-center gap-2 px-4 py-1.5 bg-mat-800/80 border border-mat-700 rounded-full animate-fade-in">
+                 <div className={`w-2 h-2 rounded-full ${isMarketLive ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                 <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">
+                    {isMarketLive ? t('community.status.live') : t('community.status.offline')}
+                 </span>
+              </div>
+           </div>
+           <h1 className="text-5xl md:text-[10rem] font-black uppercase tracking-tighter text-white leading-none font-exo text-glow animate-fade-in">
+            COLLECTORS<br/><span className="text-mat-500">HUB.</span>
+           </h1>
+           <p className="text-gray-400 text-xl md:text-3xl mt-8 font-light italic max-w-4xl mx-auto animate-fade-in opacity-80 leading-relaxed">
+             {t('community.header.subtitle')}
+           </p>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full lg:w-auto">
-             {/* Mini Leaderboard */}
-             <div className="bg-mat-900/60 border border-mat-700 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] backdrop-blur-xl shadow-2xl">
-                <div className="flex items-center gap-4 mb-6">
-                   <Trophy className="text-mat-500 w-6 h-6" />
-                   <h3 className="text-[10px] font-black uppercase tracking-widest text-white">Top Diggers</h3>
-                </div>
-                <div className="space-y-4">
-                   {[
-                     { name: 'CrateHunter', points: 1420 },
-                     { name: 'Ruzafa_Wax', points: 980 }
-                   ].map((d, i) => (
-                     <div key={i} className="flex justify-between items-center border-b border-mat-800 pb-2">
-                        <span className="text-[10px] font-bold text-gray-400">#{i+1} {d.name}</span>
-                        <span className="text-[10px] font-black text-mat-500">{d.points} XP</span>
-                     </div>
-                   ))}
-                </div>
+      <div className="container mx-auto px-6 py-12 max-w-4xl">
+        
+        {/* Post Creation Box */}
+        <div className="bg-mat-800 border-2 border-mat-700 p-6 md:p-12 rounded-[2.5rem] shadow-2xl mb-20 relative group transition-all hover:border-mat-500/30">
+          <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
+          
+          {/* Trade Toggle */}
+          <div className="flex justify-between items-center mb-8">
+             <div className="flex items-center gap-2 text-mat-500 font-black text-[10px] uppercase tracking-widest">
+                <Activity size={16} /> WHAT'S ON YOUR PLATE?
              </div>
-
              <button 
-                onClick={() => setShowSyncModal(true)}
-                className="bg-mat-500 hover:bg-mat-400 text-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center gap-5 transition-all shadow-xl group border-b-4 border-mat-700 active:translate-y-1 active:border-b-0"
+                onClick={() => handleInteraction(() => setIsTradeMode(!isTradeMode))}
+                className={`flex items-center gap-2 px-6 py-3 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border ${isTradeMode ? 'bg-mat-500 text-white border-mat-500 shadow-lg' : 'bg-mat-900 border-mat-700 text-gray-500 hover:text-white'}`}
              >
-                <div className="text-center">
-                   <p className="text-white font-black text-2xl md:text-3xl leading-none mb-1">Crate Sync</p>
-                   <p className="text-[10px] text-mat-900 font-black uppercase tracking-widest">Protocolo de Intercambio</p>
-                </div>
+                <Handshake size={14} /> {isTradeMode ? 'LISTING FOR TRADE' : 'POST FOR TRADE'}
              </button>
           </div>
-        </div>
-      </div>
 
-      <div className="container mx-auto px-6 py-12">
-        <div className="flex justify-center mb-16">
-          <div className="bg-mat-800 p-2 rounded-[2.5rem] border-2 border-mat-700 flex shadow-2xl sticky top-28 z-40 backdrop-blur-xl">
-             <button 
-                onClick={() => setActiveTab('feed')}
-                className={`px-8 md:px-12 py-3 md:py-4 rounded-[2rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] transition-all ${activeTab === 'feed' ? 'bg-mat-500 text-white shadow-xl' : 'text-gray-500 hover:text-white'}`}
-             >
-                MURO
-             </button>
-             <button 
-                onClick={() => setActiveTab('trade')}
-                className={`px-8 md:px-12 py-3 md:py-4 rounded-[2rem] text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] transition-all ${activeTab === 'trade' ? 'bg-mat-500 text-white shadow-xl' : 'text-gray-500 hover:text-white'}`}
-             >
-                TRADE HUB
-             </button>
-          </div>
-        </div>
+          <div className="flex gap-4 md:gap-8 items-start">
+             <div className="w-14 h-14 rounded-full bg-mat-900 border-2 border-mat-700 flex items-center justify-center text-mat-500 flex-shrink-0 shadow-xl">
+                {user ? user.alias[0].toUpperCase() : <Disc className="w-8 h-8 animate-spin-slow opacity-30" />}
+             </div>
+             <div className="flex-1 space-y-6">
+                {isTradeMode && (
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in bg-mat-900/60 p-8 rounded-3xl border-2 border-mat-700/50 mb-6">
+                      <div className="space-y-2">
+                         <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest">ARTIST</label>
+                         <input value={tradeDetails.artist} onChange={e => setTradeDetails({...tradeDetails, artist: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black uppercase rounded-2xl focus:border-mat-500 outline-none" placeholder="ARTIST NAME" />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest">TITLE</label>
+                         <input value={tradeDetails.title} onChange={e => setTradeDetails({...tradeDetails, title: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black uppercase rounded-2xl focus:border-mat-500 outline-none" placeholder="ALBUM TITLE" />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest">GENRE</label>
+                         <input value={tradeDetails.genre} onChange={e => setTradeDetails({...tradeDetails, genre: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black uppercase rounded-2xl focus:border-mat-500 outline-none" placeholder="HOUSE, DISCO, JAZZ..." />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[9px] font-black text-mat-500 uppercase tracking-widest">CONDITION</label>
+                         <select value={tradeDetails.condition} onChange={e => setTradeDetails({...tradeDetails, condition: e.target.value})} className="w-full bg-mat-800 border border-mat-700 p-4 text-white text-xs font-black uppercase rounded-2xl focus:border-mat-500 outline-none appearance-none cursor-pointer">
+                            <option>Mint</option><option>NM</option><option>VG+</option><option>VG</option>
+                         </select>
+                      </div>
+                   </div>
+                )}
 
-        <div className="max-w-4xl mx-auto">
-          {activeTab === 'feed' ? (
-            <div className="animate-fade-in space-y-12">
-              <div className="bg-mat-800 p-6 md:p-8 border-2 border-mat-700 shadow-2xl rounded-[2rem] md:rounded-[2.5rem] overflow-hidden group">
                 <textarea 
-                  value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
-                  placeholder="Comparte un hallazgo, una sesión o el vibe del día..."
-                  className="w-full bg-mat-900 text-white placeholder-gray-600 focus:outline-none p-4 md:p-6 border-2 border-mat-700 min-h-[140px] resize-none mb-6 rounded-2xl text-lg font-light italic transition-all focus:border-mat-500"
+                  value={content}
+                  onClick={() => !user && setShowLoginModal(true)}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder={isTradeMode ? "Describe your trade or what you're looking for..." : "Share your latest digging find, setup or session vibe..."}
+                  className="w-full bg-transparent text-white text-xl md:text-2xl font-light italic outline-none resize-none min-h-[120px] placeholder:text-gray-700 leading-relaxed"
                 />
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-4 px-4 py-2 bg-mat-900 border border-mat-700 rounded-xl">
-                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.4)]"></div>
-                     <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Selector Activo</span>
+                
+                {previewImage && (
+                  <div className="relative rounded-[2.5rem] overflow-hidden border-2 border-mat-500 group animate-in zoom-in duration-300 shadow-2xl">
+                    <img src={previewImage} className="w-full max-h-96 object-cover" />
+                    <button onClick={() => setPreviewImage(null)} className="absolute top-6 right-6 p-4 bg-red-600 text-white rounded-full shadow-2xl hover:bg-red-500 transition-all z-10">
+                      <X size={20} />
+                    </button>
                   </div>
-                  <button 
-                    onClick={handleCreatePost}
-                    disabled={!newPostContent.trim()}
-                    className="px-8 md:px-12 py-3 md:py-4 bg-mat-500 hover:bg-mat-400 disabled:opacity-30 text-white font-black uppercase text-[10px] tracking-widest rounded-xl transition-all shadow-xl clip-path-slant"
-                  >
-                    Transmitir Post
-                  </button>
-                </div>
-              </div>
+                )}
 
-              {loading ? (
-                <div className="flex flex-col items-center py-20"><Loader2 className="w-16 h-16 text-mat-500 animate-spin" /></div>
-              ) : (
-                <div className="space-y-10">
-                  {posts.map(post => (
-                    <article key={post.id} className="bg-mat-800 p-8 md:p-10 border-2 border-mat-700 hover:border-mat-500 transition-all group rounded-[2rem] md:rounded-[2.5rem] shadow-xl relative overflow-hidden">
-                      <div className="flex items-center gap-6 mb-8">
-                        <img src={post.avatar} alt={post.author} className="w-12 h-12 md:w-14 md:h-14 grayscale object-cover border-2 border-mat-700 rounded-full group-hover:grayscale-0 transition-all duration-500" loading="lazy" />
-                        <div>
-                          <div className="flex items-center gap-2">
-                             <h3 className="font-black text-white uppercase text-base tracking-tighter font-exo">{post.author}</h3>
-                             <span className="text-[8px] bg-mat-500/10 text-mat-500 px-2 py-0.5 rounded uppercase font-black border border-mat-500/20">Digger</span>
-                          </div>
-                          <span className="text-[10px] text-gray-500 font-black uppercase tracking-widest">{post.timestamp}</span>
-                        </div>
-                      </div>
-                      <p className="text-gray-300 mb-8 font-light text-lg md:text-xl leading-relaxed italic">"{post.content}"</p>
-                      <div className="flex justify-between items-center pt-8 border-t border-mat-700">
-                        <div className="flex gap-2">
-                          {post.tags.map(tag => (
-                            <span key={tag} className="text-[8px] font-black uppercase px-2 py-1 bg-mat-900 border border-mat-700 text-gray-500 rounded-md">{tag}</span>
-                          ))}
-                        </div>
-                        <div className="flex gap-6">
-                          <button className="flex items-center gap-2 text-gray-500 hover:text-mat-500 transition-colors font-black text-[10px]">
-                            <Heart className="w-5 h-5" /> {post.likes}
-                          </button>
-                          <button className="flex items-center gap-2 text-gray-500 hover:text-white transition-colors font-black text-[10px]">
-                            <MessageCircle className="w-5 h-5" /> {post.comments}
-                          </button>
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="animate-fade-in space-y-12">
-               <div className="bg-mat-800 border-2 border-mat-700 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-12 text-center relative overflow-hidden shadow-2xl">
-                  <div className="absolute top-0 left-0 w-full h-1.5 bg-green-500"></div>
-                  <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter font-exo mb-4">Muro de Intercambio</h2>
-                  <p className="text-gray-400 text-base md:text-lg font-light italic">Explora las colecciones del barrio y propone cambios directos.</p>
-               </div>
-
-               {communityRecords.length === 0 ? (
-                 <div className="text-center py-20 md:py-32 bg-mat-800/10 border-4 border-dashed border-mat-800 rounded-[2.5rem] md:rounded-[3rem] group">
-                    <Disc className="w-16 h-16 md:w-20 md:h-20 text-mat-800 mx-auto mb-6 opacity-30 group-hover:rotate-180 transition-transform duration-1000" />
-                    <p className="text-gray-600 font-black uppercase text-[10px] md:text-sm tracking-widest">Sin intercambios activos</p>
-                 </div>
-               ) : (
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {communityRecords.map(record => (
-                      <div key={record.id} className="bg-mat-800 border-2 border-mat-700 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] hover:border-green-500/50 transition-all group shadow-xl">
-                        <div className="flex gap-6">
-                           <div className="w-20 h-20 md:w-24 md:h-24 bg-mat-900 rounded-2xl overflow-hidden border-2 border-mat-700 flex-shrink-0">
-                              <img src={record.coverUrl} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700" alt="Cover vinilo Mat32" loading="lazy" />
-                           </div>
-                           <div className="flex-1 min-w-0">
-                              <h3 className="text-white font-black uppercase text-lg md:text-xl truncate font-exo leading-tight mb-1">{record.title}</h3>
-                              <p className="text-mat-500 font-bold uppercase text-[9px] md:text-[10px] tracking-widest mb-4 truncate">{record.artist}</p>
-                              <div className="flex items-center gap-2">
-                                 <Star className="w-3 h-3 text-mat-500 fill-current" />
-                                 <span className="text-[9px] md:text-[10px] font-black text-gray-500 uppercase tracking-widest">DUEÑO: {record.ownerName}</span>
-                              </div>
-                           </div>
-                        </div>
-                        <button className="w-full mt-6 py-3 md:py-4 bg-mat-900 hover:bg-green-600 text-green-500 hover:text-white border border-green-500/20 rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-3">
-                           <RefreshCw className="w-4 h-4" /> Proponer Cambio
-                        </button>
-                      </div>
-                    ))}
-                 </div>
-               )}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* SYNC MODAL */}
-      {showSyncModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-fade-in">
-           <div className="w-full max-w-xl bg-mat-900 border-2 border-mat-700 rounded-[2.5rem] md:rounded-[3rem] p-8 md:p-10 relative shadow-2xl overflow-hidden">
-              <button onClick={() => setShowSyncModal(false)} className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"><X className="w-8 h-8" /></button>
-              <div className="mb-8 md:mb-10 text-center">
-                 <div className="inline-flex items-center gap-2 text-mat-500 font-black uppercase tracking-[0.5em] text-[10px] mb-4"><Database className="w-4 h-4" /> CRATE SYNC</div>
-                 <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter mb-2 font-exo">Crate-to-Crate</h2>
-                 <p className="text-gray-400 text-sm font-light italic leading-relaxed">Pega tu lista de vinilos para que otros coleccionistas puedan verla.</p>
-              </div>
-
-              {syncStatus === 'parsing' ? (
-                <div className="py-16 md:py-20 flex flex-col items-center">
-                   <Loader2 className="w-16 h-16 text-mat-500 animate-spin mb-6" />
-                   <p className="text-white font-black uppercase text-[10px] tracking-[0.4em] animate-pulse">Sincronizando caja...</p>
-                </div>
-              ) : syncStatus === 'success' ? (
-                <div className="py-16 md:py-20 text-center animate-fade-in">
-                   <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-6" />
-                   <h4 className="text-xl md:text-2xl font-black text-white uppercase mb-2">Caja Sincronizada</h4>
-                   <p className="text-gray-500 text-[10px] font-black uppercase">Tus discos ya son visibles en el Hub.</p>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                   <input type="text" value={ownerName} onChange={(e) => setOwnerName(e.target.value)} placeholder="Alias del Coleccionista" className="w-full bg-mat-800 border-2 border-mat-700 p-4 md:p-5 text-white outline-none uppercase text-xs font-black rounded-xl shadow-inner focus:border-mat-500 transition-all" />
-                   <textarea value={csvInput} onChange={(e) => setCsvInput(e.target.value)} placeholder="Donna Summer, I Feel Love, VG+, 25€..." className="w-full bg-mat-800 border-2 border-mat-700 p-4 md:p-6 h-32 md:h-40 text-white outline-none uppercase text-xs font-black rounded-2xl resize-none leading-relaxed shadow-inner focus:border-mat-500 transition-all" />
-                   <button onClick={handleSyncProtocol} disabled={!csvInput.trim() || !ownerName.trim()} className="w-full py-5 md:py-6 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase tracking-[0.4em] text-xs shadow-xl clip-path-slant flex items-center justify-center gap-4 group">
-                      <Zap className="w-5 h-5 group-hover:rotate-180 transition-transform duration-500" /> Iniciar Protocolo
+                <div className="flex justify-between items-center pt-8 border-t border-mat-700/50">
+                   <button onClick={() => handleInteraction(() => fileInputRef.current?.click())} className="text-gray-500 hover:text-mat-500 transition-colors flex items-center gap-3 text-[10px] font-black uppercase tracking-widest">
+                      <Camera size={20} /> {isTradeMode ? 'UPLOAD PHOTO' : 'ADD MEDIA'}
+                   </button>
+                   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const r = new FileReader();
+                        r.onload = () => setPreviewImage(r.result as string);
+                        r.readAsDataURL(file);
+                      }
+                   }} />
+                   <button 
+                    onClick={() => handleInteraction(handlePostSubmit)}
+                    className="px-12 py-5 bg-mat-500 text-white font-black uppercase text-[11px] tracking-widest rounded-2xl hover:bg-mat-400 shadow-[0_10px_40px_rgba(234,88,12,0.3)] transition-all disabled:opacity-20 flex items-center gap-4 group"
+                    disabled={(!content.trim() && !previewImage && !isTradeMode) || (isTradeMode && (!tradeDetails.artist || !tradeDetails.title))}
+                   >
+                     {isTradeMode && <Handshake size={18} />} {isTradeMode ? 'LIST FOR TRADE' : 'PUBLISH TO HUB'}
                    </button>
                 </div>
-              )}
+             </div>
+          </div>
+        </div>
+
+        {/* Posts Feed */}
+        <div className="space-y-16">
+          {loading ? (
+            <div className="flex flex-col items-center py-24">
+               <Loader2 className="animate-spin text-mat-500 w-16 h-16 mb-6" />
+               <p className="text-[11px] font-black uppercase tracking-[0.5em] text-gray-700">SYNCHRONIZING HUB...</p>
+            </div>
+          ) : posts.map(post => (
+            <article key={post.id} className="bg-mat-800 border-2 border-mat-700 rounded-[3rem] overflow-hidden shadow-2xl hover:border-mat-500/30 transition-all group animate-fade-in">
+               <div className="p-10 md:p-16">
+                  <div className="flex justify-between items-center mb-10">
+                     <div className="flex items-center gap-6">
+                        <div className="w-14 h-14 rounded-full flex items-center justify-center text-white font-black text-lg shadow-2xl border border-white/10" style={{backgroundColor: post.avatar || '#ea580c'}}>{post.author[0].toUpperCase()}</div>
+                        <div>
+                           <h4 className="text-white font-black uppercase text-base md:text-lg tracking-tighter leading-none mb-1">@{post.author}</h4>
+                           <span className="text-[10px] text-gray-600 font-bold uppercase tracking-widest">{post.timestamp}</span>
+                        </div>
+                     </div>
+                     <div className="flex items-center gap-4">
+                        {post.isTrade && (
+                           <span className="px-5 py-2 bg-mat-500 text-white text-[9px] font-black uppercase tracking-[0.3em] rounded-full shadow-xl border border-white/20 flex items-center gap-2">
+                              <Handshake size={14} /> TRADING
+                           </span>
+                        )}
+                        <button className="p-3 bg-mat-900 rounded-2xl text-gray-700 hover:text-mat-500 transition-colors shadow-lg"><Share2 size={18} /></button>
+                     </div>
+                  </div>
+
+                  {/* Trade Details Display Enhanced */}
+                  {post.isTrade && post.tradeMetadata && (
+                     <div className="mb-10 p-10 bg-mat-900 border-2 border-mat-500/30 rounded-[2.5rem] relative overflow-hidden group/trade shadow-2xl">
+                        <div className="absolute top-0 right-0 p-6 opacity-5 group-hover/trade:opacity-10 transition-opacity">
+                           <Disc size={200} className="animate-spin-slow" />
+                        </div>
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+                           <div className="flex-1">
+                              <p className="text-[10px] font-black text-mat-500 uppercase tracking-widest mb-2">HUB TRADE PROPOSAL</p>
+                              <h3 className="text-4xl font-black text-white uppercase tracking-tighter font-exo leading-none mb-3">{post.tradeMetadata.title}</h3>
+                              <p className="text-2xl font-black text-gray-400 uppercase tracking-widest font-exo opacity-80">{post.tradeMetadata.artist}</p>
+                           </div>
+                           <div className="flex flex-wrap md:flex-col gap-4 items-end">
+                              <div className="flex gap-2">
+                                <span className="px-4 py-1.5 bg-mat-800 border border-mat-700 text-gray-500 text-[9px] font-black uppercase tracking-widest rounded-xl">{post.tradeMetadata.genre}</span>
+                                <span className="px-4 py-1.5 bg-mat-800 border border-mat-700 text-mat-500 text-[9px] font-black uppercase tracking-widest rounded-xl">{post.tradeMetadata.condition}</span>
+                              </div>
+                              <button 
+                                 onClick={() => handleInteraction(() => setShowTradeModal(post))}
+                                 className="px-8 py-3 bg-mat-500 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded-full shadow-2xl hover:bg-mat-400 transition-all"
+                              >
+                                 NEGOTIATE
+                              </button>
+                           </div>
+                        </div>
+                     </div>
+                  )}
+
+                  <p className="text-gray-200 text-2xl md:text-3xl font-light italic leading-relaxed mb-10">
+                    {post.content}
+                  </p>
+
+                  <div className="flex flex-wrap gap-3 mb-12">
+                     {post.tags?.map(tag => (
+                        <TagLink key={tag} label={tag} type="tag" className="bg-mat-900/50" />
+                     ))}
+                  </div>
+
+                  {post.imageUrl && (
+                    <div className="rounded-[3rem] overflow-hidden border-2 border-mat-700 mb-12 bg-black shadow-2xl relative group">
+                       <CachedImage src={post.imageUrl} alt="Hub Context" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000" />
+                       <div className="absolute inset-0 bg-gradient-to-t from-mat-900/40 to-transparent pointer-events-none"></div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-10 border-t border-mat-700/50">
+                     <div className="flex items-center gap-10">
+                        <button onClick={() => handleInteraction(() => {})} className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-mat-500 hover:text-white transition-colors group">
+                           <Heart className={`w-6 h-6 group-hover:fill-current transition-all`} /> {post.likes} <span className="hidden md:inline">LIKES</span>
+                        </button>
+                        <button 
+                         onClick={() => setActiveCommentBox(activeCommentBox === post.id ? null : post.id)}
+                         className="flex items-center gap-3 text-[11px] font-black uppercase tracking-widest text-gray-500 hover:text-white transition-colors group"
+                        >
+                           <MessageCircle className="w-6 h-6 group-hover:scale-110 transition-transform" /> {post.comments?.length || 0} <span className="hidden md:inline">COMMENTS</span>
+                        </button>
+                     </div>
+                     {post.isTrade && (
+                        <button 
+                           onClick={() => handleInteraction(() => setShowTradeModal(post))}
+                           className="w-full sm:w-auto px-10 py-5 bg-mat-800 hover:bg-mat-500 text-gray-400 hover:text-white font-black uppercase text-[10px] tracking-[0.4em] rounded-2xl transition-all shadow-xl flex items-center justify-center gap-4 group/btn border border-mat-700"
+                        >
+                           <Handshake className="group-hover/btn:rotate-12 transition-transform" /> {t('records.btn.trade')}
+                        </button>
+                     )}
+                  </div>
+               </div>
+
+               {/* Comments Section */}
+               <div className="bg-mat-900/50 p-10 md:p-16 border-t border-mat-700/50 space-y-10">
+                  {post.comments?.map((comment: any) => (
+                    <div key={comment.id} className="flex gap-6 animate-fade-in group/comm">
+                       <div className="w-12 h-12 rounded-full bg-mat-800 border-2 border-mat-700 flex items-center justify-center text-xs text-gray-500 font-black flex-shrink-0 shadow-lg group-hover/comm:border-mat-500 transition-colors">{comment.author[0]}</div>
+                       <div className="flex-1">
+                          <span className="block text-[10px] font-black text-mat-500 uppercase tracking-[0.2em] mb-2">@{comment.author}</span>
+                          <p className="text-gray-300 text-lg font-light italic leading-relaxed">"{comment.content}"</p>
+                       </div>
+                    </div>
+                  ))}
+
+                  {/* Input de Comentario */}
+                  <div className="mt-10 flex gap-4">
+                     <div className="flex-1 relative">
+                        <input 
+                          value={activeCommentBox === post.id ? commentText : ''}
+                          onClick={() => !user && setShowLoginModal(true)}
+                          onChange={(e) => {
+                            setActiveCommentBox(post.id);
+                            setCommentText(e.target.value);
+                          }}
+                          placeholder="Drop a line to this thread..."
+                          className="w-full bg-mat-800 border-2 border-mat-700 p-5 px-8 rounded-3xl text-white text-base outline-none focus:border-mat-500 transition-all italic shadow-inner placeholder:text-gray-700"
+                        />
+                     </div>
+                     <button 
+                       onClick={() => handleInteraction(() => handleCommentSubmit(post.id))}
+                       className="p-5 bg-mat-500 text-white rounded-[1.5rem] shadow-xl hover:bg-mat-400 transition-all flex items-center justify-center disabled:opacity-20"
+                       disabled={!commentText.trim()}
+                     >
+                        <Send size={24} />
+                     </button>
+                  </div>
+               </div>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      {/* Login Modal */}
+      {showLoginModal && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-black/95 backdrop-blur-2xl animate-fade-in">
+           <div className="w-full max-w-md bg-mat-800 border-2 border-mat-700 p-12 rounded-[3.5rem] text-center shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
+              <button onClick={() => setShowLoginModal(false)} className="absolute top-8 right-8 text-gray-500 hover:text-white transition-colors"><X size={32} /></button>
+              <div className="w-24 h-24 bg-mat-900 border-2 border-mat-500 rounded-full flex items-center justify-center mx-auto mb-10 shadow-[0_0_50px_rgba(234,88,12,0.3)]"><AtSign className="w-12 h-12 text-mat-500" /></div>
+              <h2 className="text-4xl font-black text-white uppercase tracking-tighter font-exo mb-6 leading-none">JOIN THE HUB.</h2>
+              <p className="text-gray-500 text-base italic mb-12 leading-relaxed px-4">Identify your signal. Enter your collector alias to interact with the local scene.</p>
+              <form onSubmit={handleRegister} className="space-y-8">
+                 <input 
+                   required 
+                   autoFocus 
+                   value={aliasInput} 
+                   onChange={(e) => setAliasInput(e.target.value)} 
+                   className="w-full bg-mat-900 border-2 border-mat-700 p-6 text-white uppercase text-center text-lg font-black rounded-3xl outline-none focus:border-mat-500 shadow-inner" 
+                   placeholder="YOUR ALIAS" 
+                 />
+                 <button type="submit" className="w-full py-6 bg-mat-500 text-white font-black uppercase text-xs tracking-[0.5em] rounded-[2rem] hover:bg-mat-400 transition-all shadow-2xl">ACTIVATE PROTOCOL</button>
+              </form>
            </div>
         </div>
+      )}
+
+      {/* Trade Proposal Modal */}
+      {showTradeModal && (
+         <div className="fixed inset-0 z-[160] flex items-center justify-center p-6 bg-black/95 backdrop-blur-3xl animate-fade-in">
+            <div className="w-full max-w-2xl bg-mat-900 border-2 border-mat-500 rounded-[3.5rem] p-12 md:p-16 relative shadow-2xl overflow-hidden">
+               <div className="absolute top-0 left-0 w-full h-2 bg-mat-500"></div>
+               <button onClick={() => setShowTradeModal(null)} className="absolute top-8 right-8 text-gray-500 hover:text-white transition-all"><X size={32} /></button>
+               
+               {tradeStatus === 'sent' ? (
+                  <div className="py-24 text-center animate-zoom-in">
+                     <CheckCircle className="w-24 h-24 text-green-500 mx-auto mb-10 shadow-2xl" />
+                     <h2 className="text-5xl font-black text-white uppercase tracking-tighter font-exo mb-6">SIGNAL SENT.</h2>
+                     <p className="text-gray-500 text-xl italic max-w-sm mx-auto leading-relaxed">Your proposal has been logged. The collector will review your offer shortly.</p>
+                  </div>
+               ) : (
+                  <>
+                     <div className="mb-14">
+                        <div className="flex items-center gap-4 text-mat-500 font-black text-[11px] uppercase tracking-[0.5em] mb-6">
+                           <Handshake size={24} /> NEGOTIATION PROTOCOL
+                        </div>
+                        <h2 className="text-5xl font-black text-white uppercase tracking-tighter font-exo leading-tight">
+                           OFFER TO <span className="text-mat-500">@{showTradeModal.author}</span>
+                        </h2>
+                        <div className="mt-8 p-6 bg-mat-800 border border-mat-700 rounded-3xl flex items-center gap-6">
+                           <div className="w-16 h-16 bg-black rounded-xl overflow-hidden flex-shrink-0">
+                              <img src={showTradeModal.tradeMetadata?.condition === 'Mint' ? 'https://images.unsplash.com/photo-1603048588665-791ca8aea617?q=80&w=200' : showTradeModal.imageUrl || 'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=200'} className="w-full h-full object-cover" />
+                           </div>
+                           <div>
+                              <p className="text-white font-black uppercase text-lg tracking-tight leading-none mb-1">{showTradeModal.tradeMetadata?.title}</p>
+                              <p className="text-mat-500 font-black uppercase text-[10px] tracking-widest">{showTradeModal.tradeMetadata?.artist}</p>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div className="space-y-10">
+                        <div className="space-y-4">
+                           <label className="text-[11px] font-black text-mat-500 uppercase tracking-widest ml-1">YOUR TRADE PROPOSAL</label>
+                           <textarea 
+                              value={tradeOffer}
+                              onChange={e => setTradeOffer(e.target.value)}
+                              className="w-full bg-mat-800 border-2 border-mat-700 p-8 h-48 text-white text-lg font-bold rounded-[2.5rem] outline-none focus:border-mat-500 transition-all resize-none italic shadow-inner placeholder:text-gray-700"
+                              placeholder="What are you offering? Cash, records or a mix..."
+                           />
+                        </div>
+
+                        <div className="flex items-center gap-4 p-6 bg-mat-800/50 rounded-3xl border border-mat-700">
+                           <AlertCircle className="text-mat-500 flex-shrink-0" size={24} />
+                           <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest leading-relaxed">By sending this offer, your alias will be shared with the collector to initiate direct encrypted communication.</p>
+                        </div>
+
+                        <button 
+                           onClick={handleSendTradeProposal}
+                           disabled={!tradeOffer.trim() || tradeStatus === 'sending'}
+                           className="w-full py-8 bg-mat-500 hover:bg-mat-400 text-white font-black uppercase tracking-[0.5em] rounded-[2.5rem] shadow-[0_20px_60px_rgba(234,88,12,0.4)] flex items-center justify-center gap-5 transition-all disabled:opacity-20 group text-sm"
+                        >
+                           {tradeStatus === 'sending' ? <Loader2 className="animate-spin" /> : <Send className="group-hover:translate-x-3 transition-transform" />} SUBMIT PROPOSAL
+                        </button>
+                     </div>
+                  </>
+               )}
+            </div>
+         </div>
       )}
     </div>
   );
 };
+
+const CheckCircle = ({ className }: { className?: string }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+);
