@@ -1,37 +1,30 @@
 
-import React, { useMemo, useState, lazy, Suspense } from 'react';
+import React, { useMemo, useState } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Loader2, Menu, X, Disc, ShoppingBag, Globe } from 'lucide-react';
 
-// Imports estáticos
+// Componentes y Contexto
 import { CartDrawer } from './components/CartDrawer';
 import { CartProvider, useCart } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AIChat } from './components/AIChat';
 
-// Lazy loading optimizado para Vercel - Asegurando rutas relativas correctas
-const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
-const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
-const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
-const OpenDecks = lazy(() => import('./pages/OpenDecks').then(m => ({ default: m.OpenDecks })));
-const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
-const PrivateEvents = lazy(() => import('./pages/PrivateEvents').then(m => ({ default: m.PrivateEvents })));
-const Records = lazy(() => import('./pages/Records').then(m => ({ default: m.Records })));
-const Bar = lazy(() => import('./pages/Bar').then(m => ({ default: m.Bar })));
-const Checkout = lazy(() => import('./pages/Checkout').then(m => ({ default: m.Checkout })));
-const Admin = lazy(() => import('./pages/Admin').then(m => ({ default: m.Admin })));
-const Legal = lazy(() => import('./pages/Legal').then(m => ({ default: m.Legal })));
-const EventDetail = lazy(() => import('./pages/EventDetail').then(m => ({ default: m.EventDetail })));
-const RecordDetail = lazy(() => import('./pages/RecordDetail').then(m => ({ default: m.RecordDetail })));
-const PostDetail = lazy(() => import('./pages/PostDetail').then(m => ({ default: m.PostDetail })));
-
-const PageLoader = () => (
-  <div className="min-h-screen bg-mat-900 flex flex-col items-center justify-center">
-    <Loader2 className="w-12 h-12 text-mat-500 animate-spin mb-4" />
-    <p className="text-mat-500 font-black uppercase text-[10px] tracking-[0.4em]">Sincronizando señal...</p>
-  </div>
-);
+// Importaciones Estáticas de Páginas (Corrige error de resolución en Vercel)
+import { Home } from './pages/Home';
+import { Events } from './pages/Events';
+import { Community } from './pages/Community';
+import { OpenDecks } from './pages/OpenDecks';
+import { Contact } from './pages/Contact';
+import { PrivateEvents } from './pages/PrivateEvents';
+import { Records } from './pages/Records';
+import { Bar } from './pages/Bar';
+import { Checkout } from './pages/Checkout';
+import { Admin } from './pages/Admin';
+import { Legal } from './pages/Legal';
+import { EventDetail } from './pages/EventDetail';
+import { RecordDetail } from './pages/RecordDetail';
+import { PostDetail } from './pages/PostDetail';
 
 const Logo: React.FC = () => (
   <div className="flex items-center gap-2 group">
@@ -122,24 +115,22 @@ const App: React.FC = () => {
             <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans selection:bg-mat-500 selection:text-white">
               <HeaderContent />
               <main className="flex-grow">
-                <Suspense fallback={<PageLoader />}>
-                  <Routes>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/bar" element={<Bar />} />
-                    <Route path="/events" element={<Events />} />
-                    <Route path="/event/:id" element={<EventDetail />} />
-                    <Route path="/record/:id" element={<RecordDetail />} />
-                    <Route path="/post/:id" element={<PostDetail />} />
-                    <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
-                    <Route path="/records" element={<Records />} />
-                    <Route path="/community" element={<Community />} />
-                    <Route path="/open-decks" element={<OpenDecks />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/admin" element={<Admin />} />
-                    <Route path="/legal/:type" element={<Legal />} />
-                  </Routes>
-                </Suspense>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/bar" element={<Bar />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/event/:id" element={<EventDetail />} />
+                  <Route path="/record/:id" element={<RecordDetail />} />
+                  <Route path="/post/:id" element={<PostDetail />} />
+                  <Route path="/alquiler-local-eventos-valencia" element={<PrivateEvents />} />
+                  <Route path="/records" element={<Records />} />
+                  <Route path="/community" element={<Community />} />
+                  <Route path="/open-decks" element={<OpenDecks />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/checkout" element={<Checkout />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/legal/:type" element={<Legal />} />
+                </Routes>
               </main>
               <CartDrawer />
               <AIChat />
