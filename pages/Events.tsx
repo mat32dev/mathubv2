@@ -6,8 +6,6 @@ import { dataService } from '../services/dataService';
 import { SEO } from '../components/SEO';
 import { Event } from '../types';
 import { useLanguage } from '../context/LanguageContext';
-import { useCart } from '../context/CartContext';
-import { CachedImage } from '../components/CachedImage';
 
 export const EventDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -50,11 +48,11 @@ export const EventDetail: React.FC = () => {
       />
       
       <div className="relative h-[60vh] overflow-hidden">
-        <CachedImage src={event.imageUrl} alt={event.title} className="w-full h-full opacity-60" />
+        <img src={event.imageUrl} alt={event.title} className="w-full h-full opacity-60" />
         <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-transparent to-transparent"></div>
         <div className="absolute bottom-12 left-0 w-full">
            <div className="container mx-auto px-6">
-              <Link to="/events" className="inline-flex items-center gap-2 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-6 hover:text-white transition-colors">
+              imgLink to="/events" className="inline-flex items-center gap-2 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-6 hover:text-white transition-colors">
                 <ArrowLeft size={16} /> VOLVER A LA AGENDA
               </Link>
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-mat-500 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded shadow-xl mb-4">
