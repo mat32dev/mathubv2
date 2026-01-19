@@ -52,11 +52,11 @@ export const EventDetail: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-transparent to-transparent"></div>
         <div className="absolute bottom-12 left-0 w-full">
            <div className="container mx-auto px-6">
-              imgLink to="/events" className="inline-flex items-center gap-2 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-6 hover:text-white transition-colors">
+              <Link to="/events" className="inline-flex items-center gap-2 text-mat-500 font-black uppercase text-[10px] tracking-widest mb-6 hover:text-white transition-colors">
                 <ArrowLeft size={16} /> VOLVER A LA AGENDA
               </Link>
               <div className="inline-flex items-center gap-3 px-4 py-1.5 bg-mat-500 text-white text-[10px] font-black uppercase tracking-[0.4em] rounded shadow-xl mb-4">
-                 <Zap className="w-4 h-4" /> LIVE SESSION
+                 <LinkZap className="w-4 h-4" /> LIVE SESSION
               </div>
               <h1 className="text-5xl md:text-8xl font-black uppercase text-white tracking-tighter font-exo leading-none mb-4">{event.title}</h1>
            </div>
