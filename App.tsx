@@ -10,7 +10,7 @@ import { FavoritesProvider } from './context/FavoritesContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AIChat } from './components/AIChat';
 
-// Lazy loading optimizado para Vercel
+// Lazy loading optimizado para Vercel - Asegurando rutas relativas correctas
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
 const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
 const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
