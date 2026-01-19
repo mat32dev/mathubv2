@@ -22,11 +22,11 @@ export const SEO: React.FC<SEOProps> = ({
   useEffect(() => {
     const siteTitle = `Mat32 | ${t(titleKey)}`;
     const siteDescription = t(descriptionKey);
-    const canonical = `https://mat32.com${location.pathname === '/' ? '' : location.pathname}`;
+    // V2: Canonical URLs sin el hash '#'
+    const canonical = `https://www.mat32.com${location.pathname === '/' ? '' : location.pathname}`;
     
     document.title = siteTitle;
 
-    // Actualizar Meta Tags estándar
     const updateMeta = (name: string, content: string, attr: string = 'name') => {
       let meta = document.querySelector(`meta[${attr}="${name}"]`);
       if (!meta) {
@@ -43,7 +43,6 @@ export const SEO: React.FC<SEOProps> = ({
     updateMeta('og:image', image, 'property');
     updateMeta('og:url', canonical, 'property');
     updateMeta('og:type', 'website', 'property');
-    updateMeta('twitter:card', 'summary_large_image');
     
     let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
     if (!link) {
@@ -53,16 +52,16 @@ export const SEO: React.FC<SEOProps> = ({
     }
     link.setAttribute('href', canonical);
 
-    // JSON-LD para SEO avanzado (Local Business + Music Store)
+    // Schema JSON-LD dinámico
     const existingScript = document.getElementById('json-ld-schema');
     if (existingScript) existingScript.remove();
 
     const jsonLd = {
       "@context": "https://schema.org",
-      "@type": [schemaType, "MusicStore", "BarOrPub", "LocalBusiness"],
+      "@type": ["BarOrPub", "MusicStore", "LocalBusiness"],
       "name": "Mat32 Valencia Discos Bar",
       "description": siteDescription,
-      "url": "https://mat32.com",
+      "url": "https://www.mat32.com",
       "image": image,
       "address": {
         "@type": "PostalAddress",
@@ -73,23 +72,9 @@ export const SEO: React.FC<SEOProps> = ({
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 39.4612,
-        "longitude": -0.3705
-      },
-      "openingHoursSpecification": [
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Thursday", "Friday", "Saturday"],
-          "opens": "18:00",
-          "closes": "02:00"
-        }
-      ],
-      "priceRange": "$$",
-      "telephone": "+34960000032",
-      "sameAs": [
-        "https://www.instagram.com/mat32_vlc",
-        "https://ra.co/clubs/mat32"
-      ]
+        "latitude": 39.461159,
+        "longitude": -0.370535
+      }
     };
 
     const script = document.createElement('script');
