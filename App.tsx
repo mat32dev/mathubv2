@@ -5,12 +5,10 @@ import { Loader2, Menu, X, DollarSign, Globe } from 'lucide-react';
 // Contextos y Componentes Centrales
 import { CartDrawer } from './components/CartDrawer';
 import { CartProvider, useCart } from './context/CartContext';
-import { FavoritesProvider } from './context/FavoritesProvider';
+import { FavoritesProvider } from './context/FavoritesContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { AIChat } from './components/AIChat';
 
-// Carga perezosa de páginas
-const Home = React.lazy(() => import('./pages/Home'));
 const Events = React.lazy(() => import('./pages/Events'));
 const Community = React.lazy(() => import('./pages/Community'));
 const OpenDecks = React.lazy(() => import('./pages/OpenDecks'));
