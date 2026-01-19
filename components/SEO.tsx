@@ -53,7 +53,6 @@ export const SEO: React.FC<SEOProps> = ({
     updateMeta('twitter:title', siteTitle);
     updateMeta('twitter:description', siteDescription);
     updateMeta('twitter:image', image);
-    updateMeta('twitter:site', '@mat32_vlc');
 
     let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
     if (!link) {
@@ -63,7 +62,7 @@ export const SEO: React.FC<SEOProps> = ({
     }
     link.setAttribute('href', canonical);
 
-    // Schema JSON-LD
+    // Schema JSON-LD para Google
     const existingScript = document.getElementById('json-ld-schema');
     if (existingScript) existingScript.remove();
 
@@ -94,11 +93,7 @@ export const SEO: React.FC<SEOProps> = ({
         "@type": "GeoCoordinates",
         "latitude": 39.461159,
         "longitude": -0.370535
-      },
-      "sameAs": [
-        "https://www.instagram.com/mat32_vlc",
-        "https://ra.co/clubs/221568"
-      ]
+      }
     };
 
     const script = document.createElement('script');
