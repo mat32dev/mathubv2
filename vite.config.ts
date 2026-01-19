@@ -5,16 +5,20 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    // Forzamos el orden de resolución para asegurar que encuentre los .tsx primero
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json', '.mjs']
+    extensions: ['.tsx', '.ts', '.jsx', '.js']
   },
   build: {
     outDir: 'dist',
     sourcemap: false,
+    emptyOutDir: true,
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'lucide-react']
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['lucide-react'],
+          'genai-vendor': ['@google/genai']
         }
       }
     }
