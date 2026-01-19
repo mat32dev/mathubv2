@@ -1,26 +1,22 @@
+
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
+    // Forzamos el orden de resolución para asegurar que encuentre los .tsx primero
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json', '.mjs']
   },
   build: {
-    target: 'esnext',
     outDir: 'dist',
     sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'lucide-react'],
-          ai: ['@google/genai']
+          vendor: ['react', 'react-dom', 'react-router-dom', 'lucide-react']
         }
       }
     }
-  },
-  server: {
-    port: 3000,
-    host: true
   }
 });
