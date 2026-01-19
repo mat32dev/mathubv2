@@ -1,9 +1,9 @@
 
 import React, { useMemo, useState, lazy, Suspense } from 'react';
 import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
-import { Loader2, Menu, X, Disc, ShoppingBag, Globe, Settings, Music } from 'lucide-react';
+import { Loader2, Menu, X, Disc, ShoppingBag, Globe } from 'lucide-react';
 
-// Lazy loading pages for performance
+// Lazy loading con rutas explícitas para evitar ambigüedad en el build de producción
 const Home = lazy(() => import('./pages/Home').then(m => ({ default: m.Home })));
 const Events = lazy(() => import('./pages/Events').then(m => ({ default: m.Events })));
 const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
@@ -28,12 +28,12 @@ import { AIChat } from './components/AIChat';
 const PageLoader = () => (
   <div className="min-h-screen bg-mat-900 flex flex-col items-center justify-center">
     <Loader2 className="w-12 h-12 text-mat-500 animate-spin mb-4" />
-    <p className="text-mat-500 font-black uppercase text-[10px] tracking-[0.4em]">Loading Signal...</p>
+    <p className="text-mat-500 font-black uppercase text-[10px] tracking-[0.4em]">Sincronizando señal...</p>
   </div>
 );
 
-const Logo: React.FC<{ className?: string }> = ({ className }) => (
-  <div className={`flex items-center gap-2 group ${className}`}>
+const Logo: React.FC = () => (
+  <div className="flex items-center gap-2 group">
     <Disc className="w-9 h-9 text-mat-500 animate-spin-slow group-hover:text-white transition-colors" />
     <div className="flex flex-col">
       <div className="flex items-start leading-none">
@@ -95,27 +95,15 @@ const HeaderContent: React.FC = () => {
         </div>
       </div>
       
-      {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-40 bg-mat-900 pt-24 px-6 animate-fade-in">
           <nav className="flex flex-col space-y-6">
             {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
-                to={link.path} 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`text-2xl font-black uppercase tracking-widest ${isActive(link.path) ? 'text-mat-500' : 'text-white'}`}
-              >
-                {link.name}
-              </Link>
+              <Link key={link.name} to={link.path} onClick={() => setIsMobileMenuOpen(false)} className={`text-2xl font-black uppercase tracking-widest ${isActive(link.path) ? 'text-mat-500' : 'text-white'}`}>{link.name}</Link>
             ))}
             <div className="pt-8 border-t border-mat-800 space-y-4">
-               <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-center py-4 bg-mat-500 text-white font-black uppercase tracking-widest rounded-xl">
-                  {t('nav.reserve_table')}
-               </Link>
-               <button onClick={() => { toggleLanguage(); setIsMobileMenuOpen(false); }} className="w-full text-center py-4 border border-mat-700 text-gray-500 font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2">
-                  <Globe size={18} /> {language === 'es' ? 'ENGLISH' : 'ESPAÑOL'}
-               </button>
+               <Link to="/contact" onClick={() => setIsMobileMenuOpen(false)} className="block w-full text-center py-4 bg-mat-500 text-white font-black uppercase tracking-widest rounded-xl">{t('nav.reserve_table')}</Link>
+               <button onClick={() => { toggleLanguage(); setIsMobileMenuOpen(false); }} className="w-full text-center py-4 border border-mat-700 text-gray-500 font-black uppercase tracking-widest rounded-xl flex items-center justify-center gap-2"><Globe size={18} /> {language === 'es' ? 'ENGLISH' : 'ESPAÑOL'}</button>
             </div>
           </nav>
         </div>
