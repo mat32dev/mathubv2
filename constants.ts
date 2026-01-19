@@ -87,7 +87,9 @@ export const MOCK_POSTS: Post[] = [
     avatar: 'https://i.pravatar.cc/150?u=101',
     content: 'Acabo de encontrar una primera edición de "Casiopea" en la tienda. ¡Estado impecable! No durará mucho en la caja.',
     likes: 32,
-    comments: 5,
+    comments: [
+      { id: 'c1', author: 'CrateDigger', content: '¡Increíble hallazgo! Esa edición suena de lujo.', timestamp: 'Hace 1 hora' }
+    ],
     timestamp: 'Hace 2 horas',
     tags: ['#vinyl', '#jazzfusion', '#mat32']
   },
@@ -97,7 +99,7 @@ export const MOCK_POSTS: Post[] = [
     avatar: 'https://i.pravatar.cc/150?u=102',
     content: 'Preparando la maleta para el sábado. Mucho Italo y alguna que otra sorpresa de Chicago. ¡Nos vemos en la cabina!',
     likes: 45,
-    comments: 2,
+    comments: [],
     timestamp: 'Hace 5 horas',
     tags: ['#italodisco', '#djlife', '#ruzafa']
   },
@@ -107,7 +109,7 @@ export const MOCK_POSTS: Post[] = [
     avatar: 'https://i.pravatar.cc/150?u=103',
     content: '¿Alguien sabe si el sistema Klipsch estará activo este domingo para la sesión de jazz? El sonido es increíble.',
     likes: 12,
-    comments: 3,
+    comments: [],
     timestamp: 'Hace 1 día',
     tags: ['#hifi', '#valencia', '#ruzafa']
   }
