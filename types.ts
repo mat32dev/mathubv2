@@ -24,25 +24,18 @@ export interface Event {
   vibe?: string[];
 }
 
-export interface TableBooking {
+export interface Comment {
   id: string;
-  name: string;
-  email: string;
-  date: string;
-  time: string;
-  guests: number;
-  status: 'pending' | 'confirmed' | 'cancelled';
-  createdAt: string;
+  author: string;
+  content: string;
+  timestamp: string;
 }
 
-export interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  phone?: string;
-  totalSpent: number;
-  lastVisit: string;
-  tags: string[];
+export interface TradeMetadata {
+  artist: string;
+  title: string;
+  genre: string;
+  condition: string;
 }
 
 export interface Post {
@@ -50,15 +43,23 @@ export interface Post {
   author: string;
   avatar: string;
   content: string;
+  imageUrl?: string;
   likes: number;
-  comments: number;
+  comments: Comment[];
   timestamp: string;
   tags: string[];
+  isTrade?: boolean;
+  tradeMetadata?: TradeMetadata;
 }
 
-export interface ChatMessage {
-  role: 'user' | 'model';
-  text: string;
+export interface Merch {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  imageUrl: string;
+  category: 'Apparel' | 'Accessories' | 'Print';
+  stock: number;
 }
 
 export interface VinylRecord {
@@ -70,8 +71,8 @@ export interface VinylRecord {
   condition: 'Mint' | 'NM' | 'VG+' | 'VG';
   price: number;
   coverUrl: string;
-  genre: 'Disco' | 'House' | 'Funk' | 'Jazz' | 'Ambient';
-  format: 'LP' | '12"' | '7"';
+  genre: 'Disco' | 'House' | 'Funk' | 'Jazz' | 'Ambient' | 'Event' | 'Ticket';
+  format: 'LP' | '12"' | '7"' | 'Digital' | 'Entrada Digital';
   discogsLink: string;
   listenLinks?: {
     bandcamp?: string;
@@ -86,10 +87,6 @@ export interface VinylRecord {
   ownerName?: string;
 }
 
-export interface CartItem extends VinylRecord {
-  quantity: number;
-}
-
 export interface MenuItem {
   name: string;
   description?: string;
@@ -102,6 +99,17 @@ export interface MenuCategory {
   items: MenuItem[];
 }
 
+export interface Order {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  items: any[];
+  total: number;
+  status: 'pending' | 'completed' | 'shipped' | 'cancelled';
+  timestamp: string;
+  shippingAddress?: string;
+}
+
 export interface SelectorSubmission {
   id: string;
   artistName: string;
@@ -109,9 +117,17 @@ export interface SelectorSubmission {
   format: string;
   bio: string;
   mixUrl: string;
+  mixEmbedUrl?: string;
   avatarUrl?: string;
   status?: 'pending' | 'approved' | 'rejected';
 }
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+}
+
+export type CartItem = VinylRecord & { quantity: number };
 
 export enum NavItem {
   HOME = 'Home',
