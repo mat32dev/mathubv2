@@ -8,21 +8,22 @@ interface SEOProps {
   descriptionKey: string;
   schemaType?: 'LocalBusiness' | 'Event' | 'CollectionPage' | 'Product' | 'WebPage' | 'MusicStore' | 'BarOrPub';
   image?: string;
+  article?: boolean;
 }
 
 export const SEO: React.FC<SEOProps> = ({ 
   titleKey, 
   descriptionKey, 
   schemaType = 'LocalBusiness',
-  image = "https://images.unsplash.com/photo-1621360841013-c768371e93cf?q=80&w=1200"
+  image = "https://images.unsplash.com/photo-1621360841013-c768371e93cf?q=80&w=1200",
+  article = false
 }) => {
   const { t } = useLanguage();
   const location = useLocation();
 
   useEffect(() => {
-    const siteTitle = `Mat32 | ${t(titleKey)}`;
+    const siteTitle = `${t(titleKey)} | Mat32 Valencia`;
     const siteDescription = t(descriptionKey);
-    // V2: Canonical URLs sin el hash '#'
     const canonical = `https://www.mat32.com${location.pathname === '/' ? '' : location.pathname}`;
     
     document.title = siteTitle;
@@ -38,12 +39,22 @@ export const SEO: React.FC<SEOProps> = ({
     };
 
     updateMeta('description', siteDescription);
+    
+    // Open Graph
     updateMeta('og:title', siteTitle, 'property');
     updateMeta('og:description', siteDescription, 'property');
     updateMeta('og:image', image, 'property');
     updateMeta('og:url', canonical, 'property');
-    updateMeta('og:type', 'website', 'property');
-    
+    updateMeta('og:type', article ? 'article' : 'website', 'property');
+    updateMeta('og:site_name', 'Mat32 Valencia', 'property');
+
+    // Twitter
+    updateMeta('twitter:card', 'summary_large_image');
+    updateMeta('twitter:title', siteTitle);
+    updateMeta('twitter:description', siteDescription);
+    updateMeta('twitter:image', image);
+    updateMeta('twitter:site', '@mat32_vlc');
+
     let link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
     if (!link) {
       link = document.createElement('link');
@@ -52,17 +63,26 @@ export const SEO: React.FC<SEOProps> = ({
     }
     link.setAttribute('href', canonical);
 
-    // Schema JSON-LD dinámico
+    // Schema JSON-LD
     const existingScript = document.getElementById('json-ld-schema');
     if (existingScript) existingScript.remove();
 
-    const jsonLd = {
+    const jsonLd: any = {
       "@context": "https://schema.org",
       "@type": ["BarOrPub", "MusicStore", "LocalBusiness"],
       "name": "Mat32 Valencia Discos Bar",
       "description": siteDescription,
       "url": "https://www.mat32.com",
       "image": image,
+      "priceRange": "$$",
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Thursday", "Friday", "Saturday"],
+          "opens": "18:00",
+          "closes": "02:00"
+        }
+      ],
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "Calle Matías Perelló, 32",
@@ -74,7 +94,11 @@ export const SEO: React.FC<SEOProps> = ({
         "@type": "GeoCoordinates",
         "latitude": 39.461159,
         "longitude": -0.370535
-      }
+      },
+      "sameAs": [
+        "https://www.instagram.com/mat32_vlc",
+        "https://ra.co/clubs/221568"
+      ]
     };
 
     const script = document.createElement('script');
@@ -83,7 +107,7 @@ export const SEO: React.FC<SEOProps> = ({
     script.innerHTML = JSON.stringify(jsonLd);
     document.head.appendChild(script);
 
-  }, [t, titleKey, descriptionKey, schemaType, image, location]);
+  }, [t, titleKey, descriptionKey, schemaType, image, location, article]);
 
   return null;
 };
