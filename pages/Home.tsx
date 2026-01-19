@@ -16,7 +16,7 @@ const CommunityTicker: React.FC<{ posts: Post[] }> = ({ posts }) => {
       <div className="whitespace-nowrap flex animate-marquee">
         {[...posts, ...posts].map((post, i) => (
           <div key={i} className="flex items-center gap-4 px-12 text-white font-black text-[9px] uppercase tracking-widest">
-            <span className="opacity-50">@{post.author} shared:</span>
+            <span className="opacity-50">@{post.author} compartió:</span>
             <span className="italic">"{post.content.substring(0, 40)}..."</span>
             <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
           </div>
@@ -78,7 +78,7 @@ export const Home: React.FC = () => {
     return (
       <div className="min-h-screen bg-mat-900 flex flex-col items-center justify-center">
         <Loader2 className="w-12 h-12 text-mat-500 animate-spin mb-4" />
-        <p className="text-mat-500 font-black uppercase text-[10px] tracking-widest">Synchronizing Mat32...</p>
+        <p className="text-mat-500 font-black uppercase text-[10px] tracking-widest">Sincronizando Mat32...</p>
       </div>
     );
   }
@@ -87,7 +87,6 @@ export const Home: React.FC = () => {
     <div className="bg-mat-900 overflow-x-hidden">
       <SEO titleKey="nav.home" descriptionKey="seo.home.description" />
       
-      {/* Community Ticker for Engagement */}
       <CommunityTicker posts={posts.slice(0, 5)} />
 
       {/* Hero Section */}
@@ -153,21 +152,48 @@ export const Home: React.FC = () => {
               ) : (
                 <div className="flex flex-col">
                     <span className="text-[9px] text-gray-600 font-black uppercase tracking-[0.4em] mb-1 flex items-center gap-2">OFF AIR</span>
-                    <span className="text-gray-500 font-black uppercase text-sm tracking-wider font-exo italic">Tuning analog lab...</span>
+                    <span className="text-gray-500 font-black uppercase text-sm tracking-wider font-exo italic">Sintonizando...</span>
                 </div>
               )}
             </div>
             <div className="flex items-center gap-3 px-6 py-2 bg-mat-800 border border-mat-700 rounded-full">
               <div className={`w-2.5 h-2.5 rounded-full ${isVenueOpen ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
               <span className="text-[10px] font-black uppercase tracking-widest text-white">
-                {isVenueOpen ? 'ABIERTO' : 'CERRADO (ANALOG LAB)'}
+                {isVenueOpen ? 'ABIERTO' : 'CERRADO'}
               </span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Heritage Section (SEO rich content) */}
+      {/* Community Spotlight */}
+      <section className="py-24 bg-mat-900 border-b border-mat-800 overflow-hidden">
+        <div className="container mx-auto px-6">
+           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+              <div>
+                <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo">Comunidad<br/><span className="text-mat-500">En Foco.</span></h2>
+              </div>
+              <Link to="/community" className="text-mat-500 font-black uppercase text-[10px] tracking-widest border-b border-mat-500 pb-2 hover:text-white transition-colors">Ver el Hub</Link>
+           </div>
+           
+           <div className="grid md:grid-cols-3 gap-8">
+              {posts.slice(0, 3).map(post => (
+                <div key={post.id} className="bg-mat-800 p-8 rounded-[2rem] border border-mat-700 hover:border-mat-500 transition-all group">
+                   <div className="flex items-center gap-4 mb-6">
+                      <div className="w-10 h-10 rounded-full bg-mat-500 flex items-center justify-center text-white font-black text-xs">{post.author[0]}</div>
+                      <span className="text-white font-black uppercase text-[10px] tracking-widest">@{post.author}</span>
+                   </div>
+                   <p className="text-gray-400 italic text-sm line-clamp-2 mb-6">"{post.content}"</p>
+                   <div className="flex items-center gap-4 text-mat-500 text-[9px] font-black uppercase">
+                      <Heart size={14} /> {post.likes} <MessageCircle size={14} className="ml-2" /> {post.comments.length}
+                   </div>
+                </div>
+              ))}
+           </div>
+        </div>
+      </section>
+
+      {/* Heritage Section */}
       <section className="py-32 bg-mat-950 border-b border-mat-800 relative overflow-hidden">
         <div className="container mx-auto px-6">
            <div className="grid lg:grid-cols-2 gap-20 items-center">
@@ -189,11 +215,11 @@ export const Home: React.FC = () => {
                  <div className="grid grid-cols-2 gap-8 pt-8">
                     <div className="flex items-center gap-4 group">
                        <div className="w-12 h-12 bg-mat-800 rounded-2xl flex items-center justify-center text-mat-500 border border-mat-700 group-hover:bg-mat-500 group-hover:text-white transition-all shadow-xl"><Disc size={20} /></div>
-                       <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">RECORD SHOP &<br/>DJ HALL</span>
+                       <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">TIENDA &<br/>DJ HALL</span>
                     </div>
                     <div className="flex items-center gap-4 group">
                        <div className="w-12 h-12 bg-mat-800 rounded-2xl flex items-center justify-center text-mat-500 border border-mat-700 group-hover:bg-mat-500 group-hover:text-white transition-all shadow-xl"><Users size={20} /></div>
-                       <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">LOCAL CULTURE &<br/>RARE DISCOVERY</span>
+                       <span className="text-[10px] font-black text-white uppercase tracking-widest leading-none">CULTURA LOCAL &<br/>RARE DISCOVERY</span>
                     </div>
                  </div>
               </article>
@@ -202,39 +228,12 @@ export const Home: React.FC = () => {
                  <div className="aspect-[4/5] rounded-[3.5rem] overflow-hidden border-2 border-mat-800 shadow-2xl relative group">
                     <CachedImage 
                       src="about-heritage.jpg" 
-                      alt="Bakalao Route Heritage Mat32 Valencia" 
+                      alt="Herencia Mat32 Valencia" 
                       className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-mat-900 via-transparent to-transparent opacity-60"></div>
                  </div>
               </aside>
-           </div>
-        </div>
-      </section>
-
-      {/* Community Spotlight (New Community Feature) */}
-      <section className="py-24 bg-mat-900 border-b border-mat-800 overflow-hidden">
-        <div className="container mx-auto px-6">
-           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
-              <div>
-                <h2 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tighter font-exo">Community<br/><span className="text-mat-500">Spotlight.</span></h2>
-              </div>
-              <Link to="/community" className="text-mat-500 font-black uppercase text-[10px] tracking-widest border-b border-mat-500 pb-2 hover:text-white transition-colors">Join the Hub</Link>
-           </div>
-           
-           <div className="grid md:grid-cols-3 gap-8">
-              {posts.slice(0, 3).map(post => (
-                <div key={post.id} className="bg-mat-800 p-8 rounded-[2rem] border border-mat-700 hover:border-mat-500 transition-all group">
-                   <div className="flex items-center gap-4 mb-6">
-                      <div className="w-10 h-10 rounded-full bg-mat-500 flex items-center justify-center text-white font-black text-xs">{post.author[0]}</div>
-                      <span className="text-white font-black uppercase text-[10px] tracking-widest">@{post.author}</span>
-                   </div>
-                   <p className="text-gray-400 italic text-sm line-clamp-2 mb-6">"{post.content}"</p>
-                   <div className="flex items-center gap-4 text-mat-500 text-[9px] font-black uppercase">
-                      <Heart size={14} /> {post.likes} <MessageCircle size={14} className="ml-2" /> {post.comments.length}
-                   </div>
-                </div>
-              ))}
            </div>
         </div>
       </section>
@@ -245,7 +244,7 @@ export const Home: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
             <div>
               <div className="inline-flex items-center gap-2 text-mat-500 font-black uppercase tracking-[0.4em] text-[10px] mb-4">
-                <Zap className="w-4 h-4" /> LIVE SESSIONS
+                <Zap className="w-4 h-4" /> SESIONES EN VIVO
               </div>
               <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter leading-none font-exo">Próximos<br/>Ritmos.</h2>
             </div>
