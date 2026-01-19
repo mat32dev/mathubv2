@@ -1,4 +1,3 @@
-
 import { Event, Post, VinylRecord, MenuCategory, SelectorSubmission } from './types';
 
 const getFutureDate = (daysFromNow: number) => {
@@ -88,9 +87,7 @@ export const MOCK_POSTS: Post[] = [
     avatar: 'https://i.pravatar.cc/150?u=101',
     content: 'Acabo de encontrar una primera edición de "Casiopea" en la tienda. ¡Estado impecable! No durará mucho en la caja.',
     likes: 32,
-    comments: [
-      { id: 'c1', author: 'CrateDigger', content: '¡Increíble hallazgo! Esa edición suena de lujo.', timestamp: 'Hace 1 hora' }
-    ],
+    comments: [],
     timestamp: 'Hace 2 horas',
     tags: ['#vinyl', '#jazzfusion', '#mat32']
   },
