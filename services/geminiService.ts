@@ -1,13 +1,17 @@
 
 import { GoogleGenAI, Chat, GenerateContentResponse, Type, Modality } from "@google/genai";
 
-// Inicialización segura
-const getApiKey = () => {
-  // @ts-ignore
-  return (window.process?.env?.API_KEY) || (process.env.API_KEY) || '';
-};
+// Inicialización perezosa para evitar crash en carga inicial si la key falta
+let aiInstance: GoogleGenAI | null = null;
 
-const ai = new GoogleGenAI({ apiKey: getApiKey() });
+const getAI = () => {
+  const apiKey = process.env.API_KEY || '';
+  if (!apiKey) return null;
+  if (!aiInstance) {
+    aiInstance = new GoogleGenAI({ apiKey });
+  }
+  return aiInstance;
+};
 
 const userRsvps = new Set<string>();
 
@@ -16,10 +20,9 @@ export const toggleRsvp = (eventTitle: string, isAttending: boolean) => {
   else userRsvps.delete(eventTitle);
 };
 
-/**
- * Crate Sync Protocol
- */
 export const curateCommunityListings = async (rawText: string): Promise<any[]> => {
+  const ai = getAI();
+  if (!ai) return [];
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -62,7 +65,9 @@ Respond in ${language === 'es' ? 'Spanish' : 'English'}.
 let chatSession: Chat | null = null;
 let currentChatLang: 'en' | 'es' | null = null;
 
-export const getChatSession = (language: 'en' | 'es'): Chat => {
+export const getChatSession = (language: 'en' | 'es'): Chat | null => {
+  const ai = getAI();
+  if (!ai) return null;
   if (!chatSession || currentChatLang !== language) {
     chatSession = ai.chats.create({
       model: 'gemini-3-flash-preview',
@@ -79,15 +84,15 @@ export const getChatSession = (language: 'en' | 'es'): Chat => {
 export const sendMessageToGemini = async (message: string, language: 'en' | 'es'): Promise<{text: string}> => {
   try {
     const chat = getChatSession(language);
+    if (!chat) throw new Error("AI not initialized");
     const context = userRsvps.size > 0 ? `[RSVPs: ${Array.from(userRsvps).join(', ')}] ` : "";
     const result: GenerateContentResponse = await chat.sendMessage({ message: context + message });
     return { text: result.text || "..." };
   } catch (error) {
-    return { text: language === 'es' ? "Protocolo interrumpido. Inténtalo de nuevo." : "Signal lost. Please retry." };
+    return { text: language === 'es' ? "Protocolo interrumpido. Sincronización offline." : "Signal lost. Offline mode active." };
   }
 };
 
-// AUDIO ENCODING UTILS
 export function encode(bytes: Uint8Array) {
   let binary = '';
   const len = bytes.byteLength;
@@ -109,7 +114,7 @@ export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampl
   const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
   for (let channel = 0; channel < numChannels; channel++) {
     const channelData = buffer.getChannelData(channel);
-    for (let i = 0; i < frameCount; i++) {
+    for (let i = 0; i < xa; i++) {
       channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
     }
   }
@@ -117,6 +122,8 @@ export async function decodeAudioData(data: Uint8Array, ctx: AudioContext, sampl
 }
 
 export const connectLive = (callbacks: any, language: 'en' | 'es') => {
+  const ai = getAI();
+  if (!ai) throw new Error("AI Key missing");
   return ai.live.connect({
     model: 'gemini-2.5-flash-native-audio-preview-12-2025',
     callbacks,
