@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Home } from './pages/Home.tsx';
 import { Events } from './pages/Events.tsx';
 import { Community } from './pages/Community.tsx';
@@ -19,7 +19,7 @@ import { CartDrawer } from './components/CartDrawer.tsx';
 import { CartProvider, useCart } from './context/CartContext.tsx';
 import { FavoritesProvider } from './context/FavoritesContext.tsx';
 import { LanguageProvider, useLanguage } from './context/LanguageContext.tsx';
-import { Menu, X, Disc, Instagram, ShoppingBag, Globe, Settings, Music, Zap, Calendar } from 'lucide-react';
+import { Menu, X, Disc, Instagram, ShoppingBag, Globe, Settings, Music, Zap } from 'lucide-react';
 import { AIChat } from './components/AIChat.tsx';
 
 const Logo: React.FC<{ className?: string }> = ({ className }) => (
@@ -37,7 +37,7 @@ const Logo: React.FC<{ className?: string }> = ({ className }) => (
   </div>
 );
 
-const Header: React.FC = () => {
+const HeaderContent: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { toggleCart, cartCount } = useCart();
@@ -59,7 +59,6 @@ const Header: React.FC = () => {
       <div className="container mx-auto px-6 h-full flex items-center justify-between">
         <Link to="/"><Logo /></Link>
         
-        {/* Desktop Navigation */}
         <div className="hidden lg:flex items-center gap-4 xl:gap-8">
           <nav className="flex items-center space-x-4 xl:space-x-6">
             {navLinks.map((link) => (
@@ -95,7 +94,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Controls */}
         <div className="flex items-center gap-2 lg:hidden">
            <Link to="/contact" className="px-4 py-2.5 bg-mat-500 text-white rounded-lg shadow-lg font-black text-[10px] uppercase tracking-widest">
               {t('nav.reserve_table')}
@@ -110,7 +108,6 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
       {isMobileMenuOpen && (
         <div className="lg:hidden bg-mat-900 border-b border-mat-800 absolute w-full left-0 z-50 animate-fade-in shadow-2xl max-h-[85vh] overflow-y-auto">
           <nav className="flex flex-col p-8 space-y-6">
@@ -198,7 +195,7 @@ const App: React.FC = () => {
         <CartProvider>
           <Router>
             <div className="flex flex-col min-h-screen bg-mat-900 text-gray-100 font-sans selection:bg-mat-500 selection:text-white">
-              <Header />
+              <HeaderContent />
               <main className="flex-grow">
                 <Routes>
                   <Route path="/" element={<Home />} />
